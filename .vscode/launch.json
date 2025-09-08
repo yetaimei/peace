@@ -1,0 +1,46 @@
+{
+    // 使用 IntelliSense 了解相关属性。
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "16-pro-18.5-home",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "A30DA1D3-51A2-4B00-BDEA-759A16FEBCD0"
+        },
+        {
+            "name": "16-真机-debug",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "00008140-000055CC0E0B001C",
+            "flutterMode": "debug"
+        },
+        {
+            "name": "16-真机-release",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "00008140-000055CC0E0B001C",
+            "flutterMode": "release"
+        },
+        {
+            "name": "iphone16-home",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "78836151-8023-4F9D-A76B-6A928B4B6FA0"
+        },
+        {
+            "name": "ipad-11-M4",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "298DD8D3-6B16-42C0-9E77-5B314BC86F96",
+            "flutterMode": "debug"
+        }
+    ]
+}
