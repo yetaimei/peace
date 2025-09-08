@@ -1,122 +1,273 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const BookOfAnswersApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class BookOfAnswersApp extends StatelessWidget {
+  const BookOfAnswersApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '答案之书',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        scaffoldBackgroundColor: const Color(0xFFE0E0D8),
+        textTheme: GoogleFonts.vt323TextTheme(
+          Theme.of(context).textTheme,
+        ).apply(
+          bodyColor: const Color(0xFF1A1A1A),
+          displayColor: const Color(0xFF1A1A1A),
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const BookOfAnswersPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class BookOfAnswersPage extends StatefulWidget {
+  const BookOfAnswersPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<BookOfAnswersPage> createState() => _BookOfAnswersPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _BookOfAnswersPageState extends State<BookOfAnswersPage> {
+  final TextEditingController _questionController = TextEditingController();
+  String _currentAnswer = '';
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  // 预设的答案列表（模拟HTML中的答案）
+  final List<String> _answers = [
+    '是的',
+    '不是',
+    '也许',
+    '当然',
+    '绝对不是',
+    '很有可能',
+    '问问你的心',
+    '现在还不是时候',
+    '专心致志',
+    '毫无疑问',
+    '我的回答是否定的',
+    '我的消息来源说不',
+    '前景不明朗，再问一次',
+    '再问一次',
+    '最好现在不要告诉你',
+    '无法预测',
+    '专注然后再问',
+    '不要依赖它',
+    '你可以依靠它',
+    '绝对是的'
+  ];
+
+  void _getAnswer() {
+    if (_questionController.text.isNotEmpty) {
+      final random = Random();
+      setState(() {
+        _currentAnswer = _answers[random.nextInt(_answers.length)];
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+      backgroundColor: const Color(0xFFE0E0D8),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // 顶部图标区域
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(
+                    Icons.favorite_border,
+                    size: 32,
+                    color: const Color(0xFF1A1A1A),
+                  ),
+                  Icon(
+                    Icons.person,
+                    size: 32,
+                    color: const Color(0xFF1A1A1A),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 48),
+              
+              // 标题区域
+              Column(
+                children: [
+                  Text(
+                    'Peace and Love',
+                    style: GoogleFonts.vt323(
+                      fontSize: 24,
+                      color: const Color(0xFF1A1A1A),
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '答案之书',
+                    style: GoogleFonts.vt323(
+                      fontSize: 64,
+                      color: const Color(0xFF1A1A1A),
+                      letterSpacing: 4.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'THE BOOK OF ANSWERS',
+                    style: GoogleFonts.vt323(
+                      fontSize: 18,
+                      color: const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 48),
+              
+              // 主要内容区域 - 书本和提示文字
+              Container(
+                width: 288,
+                height: 320, // 减小高度
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE0E0D8),
+                  border: Border.all(
+                    color: const Color(0xFF1A1A1A),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    const BoxShadow(
+                      color: Color(0xFF1A1A1A),
+                      offset: Offset(4, 4),
+                      blurRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.menu_book,
+                      size: 96, // 减小图标大小
+                      color: const Color(0xFF1A1A1A),
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        '请在心中默念你的问题，然后按下按钮',
+                        style: GoogleFonts.vt323(
+                          fontSize: 16, // 减小字体大小
+                          color: const Color(0xFF1A1A1A),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // 答案显示区域
+              Container(
+                height: 40,
+                alignment: Alignment.center,
+                child: Text(
+                  _currentAnswer,
+                  style: GoogleFonts.vt323(
+                    fontSize: 30,
+                    color: const Color(0xFF1A1A1A),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // 输入框
+              Container(
+                constraints: const BoxConstraints(maxWidth: 350),
+                child: Container(
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0E0D8),
+                    border: Border.all(
+                      color: const Color(0xFF1A1A1A),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      const BoxShadow(
+                        color: Color(0xFF1A1A1A),
+                        offset: Offset(4, 4),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _questionController,
+                    style: GoogleFonts.vt323(
+                      fontSize: 24,
+                      color: const Color(0xFF1A1A1A),
+                    ),
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      hintText: '输入你的问题...',
+                      hintStyle: GoogleFonts.vt323(
+                        fontSize: 24,
+                        color: Colors.grey,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(16),
+                    ),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // 获取答案按钮
+              GestureDetector(
+                onTap: _getAnswer,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 48.0,
+                    vertical: 16.0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0E0D8),
+                    border: Border.all(
+                      color: const Color(0xFF1A1A1A),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      const BoxShadow(
+                        color: Color(0xFF1A1A1A),
+                        offset: Offset(4, 4),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    '获取答案',
+                    style: GoogleFonts.vt323(
+                      fontSize: 30,
+                      color: const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
