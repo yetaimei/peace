@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=VT323" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        @layer base {
+            :root {
+                --pixel-bg: #E0E0D8;
+                --pixel-text: #1A1A1A;
+                --pixel-border: #1A1A1A;
+            }
+        }
+        .pixel-box {
+            background-color: var(--pixel-bg);
+            border: 2px solid var(--pixel-border);
+            box-shadow:
+                4px 4px 0 0 var(--pixel-border),
+                inset -4px -4px 0 0 #B0B0A8,
+                inset 4px 4px 0 0 #FFFFFF;
+        }
+        .pixel-button {
+            background-color: var(--pixel-bg);
+            border: 2px solid var(--pixel-border);
+            box-shadow:
+                4px 4px 0 0 var(--pixel-border);
+            color: var(--pixel-text);
+            position: relative;
+            transition: all 0.1s ease-in-out;
+        }
+        .pixel-button:active {
+            box-shadow: none;
+            transform: translate(4px, 4px);
+        }
+        .pixel-bg-pattern {
+            background-color: var(--pixel-bg);
+            background-image:
+                linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: 4px 4px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+      font-family: 'VT323', monospace;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[var(--pixel-bg)]">
+<div class="relative flex size-full min-h-screen flex-col bg-[var(--pixel-bg)] text-[var(--pixel-text)] group/design-root overflow-x-hidden">
+<div class="absolute inset-0 pixel-bg-pattern z-0"></div>
+<div class="relative z-10 flex-grow flex flex-col p-4">
+<div class="flex items-center justify-center relative py-4">
+<a class="absolute left-0" href="#">
+<svg class="w-8 h-8 text-[var(--pixel-text)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</a>
+<h1 class="text-4xl tracking-wider">设置</h1>
+</div>
+<div class="flex-grow flex flex-col justify-center mt-8 space-y-6">
+<div class="w-full max-w-sm mx-auto">
+<a class="pixel-box w-full flex items-center justify-between p-4 text-2xl mb-6 active:translate-x-1 active:translate-y-1 active:shadow-none transition-transform duration-100" href="#">
+<span>关于我们</span>
+<svg class="w-6 h-6 text-[var(--pixel-text)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</a>
+<a class="pixel-box w-full flex items-center justify-between p-4 text-2xl mb-6 active:translate-x-1 active:translate-y-1 active:shadow-none transition-transform duration-100" href="#">
+<span>隐私政策</span>
+<svg class="w-6 h-6 text-[var(--pixel-text)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+</a>
+<div class="pixel-box w-full flex items-center justify-between p-4 text-2xl mb-6">
+<span>版本信息</span>
+<span class="text-gray-500">v1.0.0</span>
+</div>
+<button class="pixel-box w-full flex items-center justify-between p-4 text-2xl active:translate-x-1 active:translate-y-1 active:shadow-none transition-transform duration-100">
+<span>清除缓存</span>
+<span class="text-gray-500">24MB</span>
+</button>
+</div>
+</div>
+<div class="text-center text-gray-500 pb-4 text-lg">
+<p>Made with Peace and Love</p>
+</div>
+</div>
+</div>
+
+</body></html>
