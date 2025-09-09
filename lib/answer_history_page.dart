@@ -452,27 +452,19 @@ class _AnswerHistoryPageState extends State<AnswerHistoryPage> {
               // 调试信息显示
               if (kDebugMode)
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                  padding: const EdgeInsets.all(12.0),
+                  margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
-                    color: Colors.yellow.withValues(alpha: 0.3),
-                    border: Border.all(color: Colors.orange, width: 1),
-                    borderRadius: BorderRadius.circular(8),
+                    color: const Color(0xFFE0E0D8),
+                    border: Border.all(color: const Color(0xFF1A1A1A), width: 1),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.info_outline, size: 16, color: Color(0xFF1A1A1A)),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '📊 历史记录: ${_historyItems.length}条 | 加载状态: ${_isLoading ? "加载中" : "完成"}',
-                          style: GoogleFonts.vt323(
-                            fontSize: 12,
-                            color: const Color(0xFF1A1A1A),
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    '历史记录: ${_historyItems.length}条 | 状态: ${_isLoading ? "加载中" : "完成"}',
+                    style: GoogleFonts.vt323(
+                      fontSize: 12,
+                      color: const Color(0xFF1A1A1A).withValues(alpha: 0.7),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               
@@ -516,107 +508,101 @@ class _AnswerHistoryPageState extends State<AnswerHistoryPage> {
                             ),
                           )
                         : ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                             itemCount: _historyItems.length,
                             itemBuilder: (context, index) {
                               final item = _historyItems[index];
                               return Container(
-                                margin: const EdgeInsets.only(bottom: 16.0),
+                                margin: const EdgeInsets.only(bottom: 8.0),
                                 child: GestureDetector(
                                   onTap: () => _viewAnswer(item),
                                   child: Container(
-                                    padding: const EdgeInsets.all(16.0),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFE0E0D8),
                                       border: Border.all(
                                         color: const Color(0xFF1A1A1A),
-                                        width: 2,
+                                        width: 1,
                                       ),
                                       boxShadow: [
                                         const BoxShadow(
                                           color: Color(0xFF1A1A1A),
-                                          offset: Offset(4, 4),
+                                          offset: Offset(2, 2),
                                           blurRadius: 0,
                                         ),
                                       ],
                                     ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                    child: Row(
                                       children: [
-                                        // 问题
-                                        if (item.question.isNotEmpty) ...[
-                                          Text(
-                                            '问题:',
-                                            style: GoogleFonts.vt323(
-                                              fontSize: 14,
-                                              color: const Color(0xFF1A1A1A).withValues(alpha: 0.6),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            item.question,
-                                            style: GoogleFonts.vt323(
-                                              fontSize: 18,
-                                              color: const Color(0xFF1A1A1A),
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 12),
-                                        ],
-                                        
-                                        // 答案
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 12.0,
-                                                  vertical: 6.0,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xFFE0E0D8),
-                                                  border: Border.all(
-                                                    color: const Color(0xFF1A1A1A),
-                                                    width: 2,
-                                                  ),
-                                                  boxShadow: [
-                                                    const BoxShadow(
-                                                      color: Color(0xFF1A1A1A),
-                                                      offset: Offset(2, 2),
-                                                      blurRadius: 0,
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Text(
-                                                  item.answer,
+                                        // 左侧：问题和时间
+                                        Expanded(
+                                          flex: 2,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              if (item.question.isNotEmpty) ...[
+                                                Text(
+                                                  item.question,
                                                   style: GoogleFonts.vt323(
-                                                    fontSize: 20,
-                                                    color: const Color(0xFF1A1A1A),
-                                                    letterSpacing: 1.0,
+                                                    fontSize: 14,
+                                                    color: const Color(0xFF1A1A1A).withValues(alpha: 0.7),
                                                   ),
                                                   maxLines: 1,
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
+                                                const SizedBox(height: 4),
+                                              ],
+                                              Text(
+                                                _formatTimestamp(item.timestamp),
+                                                style: GoogleFonts.vt323(
+                                                  fontSize: 12,
+                                                  color: const Color(0xFF1A1A1A).withValues(alpha: 0.5),
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            const Icon(
-                                              Icons.arrow_forward_ios,
-                                              size: 16,
-                                              color: Color(0xFF1A1A1A),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                         
-                                        const SizedBox(height: 8),
+                                        const SizedBox(width: 8),
                                         
-                                        // 时间戳
-                                        Text(
-                                          _formatTimestamp(item.timestamp),
-                                          style: GoogleFonts.vt323(
-                                            fontSize: 12,
-                                            color: const Color(0xFF1A1A1A).withValues(alpha: 0.5),
+                                        // 右侧：答案和箭头
+                                        Expanded(
+                                          flex: 3,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(
+                                                    horizontal: 8.0,
+                                                    vertical: 6.0,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFFE0E0D8),
+                                                    border: Border.all(
+                                                      color: const Color(0xFF1A1A1A).withValues(alpha: 0.3),
+                                                      width: 1,
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    item.answer,
+                                                    style: GoogleFonts.vt323(
+                                                      fontSize: 16,
+                                                      color: const Color(0xFF1A1A1A),
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              const Icon(
+                                                Icons.arrow_forward_ios,
+                                                size: 14,
+                                                color: Color(0xFF1A1A1A),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],

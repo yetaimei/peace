@@ -9,6 +9,7 @@ import 'answer_display_page.dart';
 import 'answer_history_page.dart';
 import 'services/logger_service.dart';
 import 'services/answer_library_service.dart';
+import 'services/font_service.dart';
 import 'data/answer_libraries.dart';
 
 void main() {
@@ -21,8 +22,31 @@ void main() {
   runApp(const BookOfAnswersApp());
 }
 
-class BookOfAnswersApp extends StatelessWidget {
+class BookOfAnswersApp extends StatefulWidget {
   const BookOfAnswersApp({super.key});
+
+  @override
+  State<BookOfAnswersApp> createState() => _BookOfAnswersAppState();
+}
+
+class _BookOfAnswersAppState extends State<BookOfAnswersApp> {
+  String _currentFontId = 'vt323';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentFont();
+  }
+
+  Future<void> _loadCurrentFont() async {
+    final fontId = await FontService.getCurrentFontId();
+    if (mounted) {
+      setState(() {
+        _currentFontId = fontId;
+      });
+      LoggerService.info('应用启动-加载字体: $fontId', 'APP_LIFECYCLE');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,21 +54,21 @@ class BookOfAnswersApp extends StatelessWidget {
       title: '答案之书',
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFE0E0D8),
-        textTheme: GoogleFonts.vt323TextTheme(
-          Theme.of(context).textTheme,
-        ).apply(
+        textTheme: FontService.getTextTheme(context, _currentFontId).apply(
           bodyColor: const Color(0xFF1A1A1A),
           displayColor: const Color(0xFF1A1A1A),
         ),
       ),
-      home: const BookOfAnswersPage(),
+      home: BookOfAnswersPage(onFontChanged: _loadCurrentFont),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class BookOfAnswersPage extends StatefulWidget {
-  const BookOfAnswersPage({super.key});
+  final VoidCallback? onFontChanged;
+  
+  const BookOfAnswersPage({super.key, this.onFontChanged});
 
   @override
   State<BookOfAnswersPage> createState() => _BookOfAnswersPageState();
@@ -62,6 +86,15 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
   // 当前答案库信息
   AnswerLibrary? _currentLibrary;
   String _currentLibraryName = '加载中...';
+  
+  // 当前字体信息
+  TextStyle Function({
+    double? fontSize,
+    Color? color,
+    FontWeight? fontWeight,
+    double? letterSpacing,
+    double? height,
+  }) _currentTextStyle = GoogleFonts.vt323;
 
   @override
   void initState() {
@@ -100,8 +133,9 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
       curve: Curves.elasticInOut,
     ));
     
-    // 加载当前答案库
+    // 加载当前答案库和字体
     _loadCurrentLibrary();
+    _loadCurrentFont();
   }
 
   @override
@@ -130,6 +164,21 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
           _currentLibraryName = '加载失败';
         });
       }
+    }
+  }
+
+  /// 加载当前选中的字体
+  Future<void> _loadCurrentFont() async {
+    try {
+      final textStyle = await FontService.getCurrentTextStyleFunction();
+      if (mounted) {
+        setState(() {
+          _currentTextStyle = textStyle;
+        });
+        LoggerService.debug('主页面-字体加载成功');
+      }
+    } catch (e) {
+      LoggerService.error('加载字体失败: $e', 'FONT_LOAD');
     }
   }
 
@@ -319,8 +368,12 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                           builder: (context) => const SettingsPage(),
                         ),
                       );
-                      // 从设置页面返回后，重新加载答案库
+                      // 从设置页面返回后，重新加载答案库和检查字体变更
                       _loadCurrentLibrary();
+                      _loadCurrentFont();
+                      if (widget.onFontChanged != null) {
+                        widget.onFontChanged!();
+                      }
                     },
                     child: const Icon(
                       Icons.settings,
@@ -338,7 +391,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                 children: [
                   Text(
                     'Peace and Love',
-                    style: GoogleFonts.vt323(
+                    style: _currentTextStyle(
                       fontSize: 18,
                       color: const Color(0xFF1A1A1A),
                       letterSpacing: 1.5,
@@ -347,7 +400,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                   const SizedBox(height: 6),
                   Text(
                     '答案之书',
-                    style: GoogleFonts.vt323(
+                    style: _currentTextStyle(
                       fontSize: 48,
                       color: const Color(0xFF1A1A1A),
                       letterSpacing: 3.0,
@@ -356,7 +409,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                   const SizedBox(height: 6),
                   Text(
                     'THE BOOK OF ANSWERS',
-                    style: GoogleFonts.vt323(
+                    style: _currentTextStyle(
                       fontSize: 14,
                       color: const Color(0xFF1A1A1A),
                     ),
@@ -415,7 +468,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                                       ? '答案之书正在翻阅古老的智慧...'
                                       : '请在心中默念你的问题，然后按下按钮',
                                   key: ValueKey(_isSearchingAnswer),
-                                  style: GoogleFonts.vt323(
+                                  style: _currentTextStyle(
                                     fontSize: 14,
                                     color: const Color(0xFF1A1A1A),
                                   ),
@@ -469,14 +522,14 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                   ),
                   child: TextField(
                     controller: _questionController,
-                    style: GoogleFonts.vt323(
+                    style: _currentTextStyle(
                       fontSize: 18,
                       color: const Color(0xFF1A1A1A),
                     ),
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
                       hintText: '输入你的问题...',
-                      hintStyle: GoogleFonts.vt323(
+                      hintStyle: _currentTextStyle(
                         fontSize: 18,
                         color: Colors.grey,
                       ),
@@ -536,7 +589,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                       ],
                       Text(
                         _isSearchingAnswer ? '翻阅中...' : '获取答案',
-                        style: GoogleFonts.vt323(
+                        style: _currentTextStyle(
                           fontSize: 24,
                           color: _isSearchingAnswer 
                               ? Colors.grey[600] 
@@ -563,7 +616,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                     children: [
                       Text(
                         '🔧 调试信息',
-                        style: GoogleFonts.vt323(
+                        style: _currentTextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF1A1A1A),
@@ -572,35 +625,35 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                       const SizedBox(height: 8),
                       Text(
                         '搜索状态: ${_isSearchingAnswer ? "进行中" : "空闲"}',
-                        style: GoogleFonts.vt323(
+                        style: _currentTextStyle(
                           fontSize: 12,
                           color: const Color(0xFF1A1A1A),
                         ),
                       ),
                       Text(
                         '问题长度: ${_questionController.text.length}字符',
-                        style: GoogleFonts.vt323(
+                        style: _currentTextStyle(
                           fontSize: 12,
                           color: const Color(0xFF1A1A1A),
                         ),
                       ),
                       Text(
                         '动画状态: ${_animationController.isAnimating ? "运行中" : "停止"}',
-                        style: GoogleFonts.vt323(
+                        style: _currentTextStyle(
                           fontSize: 12,
                           color: const Color(0xFF1A1A1A),
                         ),
                       ),
                       Text(
                         '当前答案库: $_currentLibraryName',
-                        style: GoogleFonts.vt323(
+                        style: _currentTextStyle(
                           fontSize: 12,
                           color: const Color(0xFF1A1A1A),
                         ),
                       ),
                       Text(
                         '答案数量: ${_currentLibrary?.answers.length ?? 0}条',
-                        style: GoogleFonts.vt323(
+                        style: _currentTextStyle(
                           fontSize: 12,
                           color: const Color(0xFF1A1A1A),
                         ),

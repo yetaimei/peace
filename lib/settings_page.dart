@@ -6,9 +6,66 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'answer_library_page.dart';
 import 'components/pixel_dialog.dart';
 import 'components/about_dialog.dart';
+import 'pages/font_selection_page.dart';
+import 'services/font_service.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  String _currentFontName = '加载中...';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentFont();
+  }
+
+  Future<void> _loadCurrentFont() async {
+    final fontId = await FontService.getCurrentFontId();
+    final fontChoice = FontService.getFontChoiceById(fontId);
+    setState(() {
+      _currentFontName = fontChoice?.name ?? 'VT323';
+    });
+  }
+
+  void _onFontChanged() {
+    // 字体更改后重新加载当前字体名称
+    _loadCurrentFont();
+  }
+
+  Future<void> _openFontSelection() async {
+    final result = await Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => 
+            const FontSelectionPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0); // 从右侧开始
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+
+          var tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: curve),
+          );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 300),
+      ),
+    );
+    
+    // 如果字体有更改，通知父组件
+    if (result == true) {
+      _onFontChanged();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +79,16 @@ class SettingsPage extends StatelessWidget {
         ),
         child: CustomPaint(
           painter: PixelPatternPainter(),
-          child: Padding(
-              padding: EdgeInsets.fromLTRB(16.0, MediaQuery.of(context).padding.top + 16.0, 16.0, 16.0),
-              child: Column(
-                children: [
-                  // 顶部标题栏
-                  _buildAppBar(context),
-                  
-                  // 主要内容区域
-                  Expanded(
+          child: SafeArea(
+            child: Column(
+              children: [
+                // 顶部标题栏
+                _buildAppBar(context),
+                
+                // 主要内容区域
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -52,6 +110,9 @@ class SettingsPage extends StatelessWidget {
                                   );
                                 },
                               ),
+                              const SizedBox(height: 24),
+                              
+                              _buildFontSettingItem(),
                               const SizedBox(height: 24),
                               
                               _buildSettingItem(
@@ -91,14 +152,17 @@ class SettingsPage extends StatelessWidget {
                           ),
                         ),
                         
-                        const Spacer(),
+                        const SizedBox(height: 40),
                         
                         // 底部文字
                         _buildFooter(),
+                        
+                        const SizedBox(height: 32),
                       ],
                     ),
                   ),
-                ],
+                ),
+              ],
             ),
           ),
         ),
@@ -108,7 +172,7 @@ class SettingsPage extends StatelessWidget {
 
   Widget _buildAppBar(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
       child: Row(
         children: [
           // 返回按钮
@@ -160,6 +224,51 @@ class SettingsPage extends StatelessWidget {
               style: GoogleFonts.vt323(
                 fontSize: 24,
                 color: const Color(0xFF1A1A1A),
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 24,
+              color: Color(0xFF1A1A1A),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFontSettingItem() {
+    return GestureDetector(
+      onTap: _openFontSelection,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16.0),
+        decoration: _buildPixelBoxDecoration(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Text(
+                    '字体设置',
+                    style: GoogleFonts.vt323(
+                      fontSize: 24,
+                      color: const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      '($_currentFontName)',
+                      style: GoogleFonts.vt323(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ),
             const Icon(

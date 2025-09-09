@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>答案之书 - 7大主题预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            overflow-x: auto;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: #111;
+            border: 2px solid #333;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: #222;
+            border-bottom: 2px solid #333;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .theme-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .theme-card {
+            height: 200px;
+            position: relative;
+            border: 3px solid;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .theme-card:hover {
+            transform: scale(1.02);
+        }
+
+        .theme-card .icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .theme-card .answer {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .theme-card .name {
+            font-size: 12px;
+            padding: 4px 8px;
+            border: 2px solid;
+            display: inline-block;
+        }
+
+        /* 主题1: 原始经典 */
+        .theme-1 {
+            background: linear-gradient(135deg, #E0E0D8, #E0E0D8);
+            color: #1A1A1A;
+            border-color: #1A1A1A;
+            box-shadow: 6px 6px 0 #1A1A1A;
+        }
+
+        .theme-1 .name {
+            background: #E0E0D8;
+            border-color: #1A1A1A;
+        }
+
+        /* 主题2: 经典绿屏 */
+        .theme-2 {
+            background: linear-gradient(135deg, #001100, #003300);
+            color: #00FF00;
+            border-color: #00CC00;
+            box-shadow: 6px 6px 0 #004400;
+        }
+
+        .theme-2 .name {
+            background: #001100;
+            border-color: #00CC00;
+        }
+
+        /* 主题3: 赛博朋克 */
+        .theme-3 {
+            background: linear-gradient(135deg, #0A0A1A, #2D1B69);
+            color: #FF00FF;
+            border-color: #AA00FF;
+            box-shadow: 6px 6px 0 #2D1B69;
+        }
+
+        .theme-3 .name {
+            background: #0A0A1A;
+            border-color: #AA00FF;
+        }
+
+        /* 主题4: 复古橙光 */
+        .theme-4 {
+            background: linear-gradient(135deg, #1A0A00, #2E1A0A);
+            color: #FF6600;
+            border-color: #CC4400;
+            box-shadow: 6px 6px 0 #331100;
+        }
+
+        .theme-4 .name {
+            background: #1A0A00;
+            border-color: #CC4400;
+        }
+
+        /* 主题5: 深海蓝调 */
+        .theme-5 {
+            background: linear-gradient(135deg, #001122, #002244);
+            color: #00CCFF;
+            border-color: #0099CC;
+            box-shadow: 6px 6px 0 #003366;
+        }
+
+        .theme-5 .name {
+            background: #001122;
+            border-color: #0099CC;
+        }
+
+        /* 主题6: 樱花粉恋 */
+        .theme-6 {
+            background: linear-gradient(135deg, #2A1A20, #3A2A30);
+            color: #FF99CC;
+            border-color: #CC6699;
+            box-shadow: 6px 6px 0 #4A2A40;
+        }
+
+        .theme-6 .name {
+            background: #2A1A20;
+            border-color: #CC6699;
+        }
+
+        /* 主题7: 森林绿野 */
+        .theme-7 {
+            background: linear-gradient(135deg, #0A1A0A, #1A2A1A);
+            color: #66FF66;
+            border-color: #44CC44;
+            box-shadow: 6px 6px 0 #2A3A2A;
+        }
+
+        .theme-7 .name {
+            background: #0A1A0A;
+            border-color: #44CC44;
+        }
+
+        /* 主题8: 黄金时代 */
+        .theme-8 {
+            background: linear-gradient(135deg, #1A1A00, #2A2A00);
+            color: #FFDD00;
+            border-color: #CCAA00;
+            box-shadow: 6px 6px 0 #333300;
+        }
+
+        .theme-8 .name {
+            background: #1A1A00;
+            border-color: #CCAA00;
+        }
+
+        .instructions {
+            text-align: center;
+            padding: 20px;
+            background: #222;
+            border-top: 2px solid #333;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .pattern-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        /* 不同图案效果 */
+        .pattern-grid { background-image: repeating-linear-gradient(0deg, currentColor, currentColor 1px, transparent 1px, transparent 8px), repeating-linear-gradient(90deg, currentColor, currentColor 1px, transparent 1px, transparent 8px); }
+        .pattern-dots { background-image: radial-gradient(circle at 8px 8px, currentColor 1.5px, transparent 1.5px); background-size: 16px 16px; }
+        .pattern-circuit { background-image: repeating-linear-gradient(0deg, currentColor, currentColor 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, currentColor, currentColor 1px, transparent 1px, transparent 40px); }
+        .pattern-diagonal { background-image: repeating-linear-gradient(45deg, currentColor, currentColor 1px, transparent 1px, transparent 12px); }
+        .pattern-waves { background-image: repeating-linear-gradient(0deg, currentColor, currentColor 1px, transparent 1px, transparent 20px); }
+        .pattern-stars { background-image: radial-gradient(circle at 16px 16px, currentColor 2px, transparent 2px); background-size: 32px 32px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 答案之书 - 8大主题预览</h1>
+            <div class="subtitle">第1个是原始经典主题 + 7个新设计主题</div>
+        </div>
+        
+        <div class="theme-grid">
+            <div class="theme-card theme-1">
+                <div class="pattern-overlay pattern-grid"></div>
+                <div class="icon">✨</div>
+                <div class="answer">是的，相信自己</div>
+                <div class="name">原始经典</div>
+            </div>
+
+            <div class="theme-card theme-2">
+                <div class="pattern-overlay pattern-grid"></div>
+                <div class="icon">💻</div>
+                <div class="answer">是的，相信自己</div>
+                <div class="name">经典绿屏</div>
+            </div>
+
+            <div class="theme-card theme-3">
+                <div class="pattern-overlay pattern-circuit"></div>
+                <div class="icon">⚡</div>
+                <div class="answer">是的，相信自己</div>
+                <div class="name">赛博朋克</div>
+            </div>
+
+            <div class="theme-card theme-4">
+                <div class="pattern-overlay pattern-waves"></div>
+                <div class="icon">📻</div>
+                <div class="answer">是的，相信自己</div>
+                <div class="name">复古橙光</div>
+            </div>
+
+            <div class="theme-card theme-5">
+                <div class="pattern-overlay pattern-dots"></div>
+                <div class="icon">🌊</div>
+                <div class="answer">是的，相信自己</div>
+                <div class="name">深海蓝调</div>
+            </div>
+
+            <div class="theme-card theme-6">
+                <div class="pattern-overlay pattern-stars"></div>
+                <div class="icon">💖</div>
+                <div class="answer">是的，相信自己</div>
+                <div class="name">樱花粉恋</div>
+            </div>
+
+            <div class="theme-card theme-7">
+                <div class="pattern-overlay pattern-dots"></div>
+                <div class="icon">🌲</div>
+                <div class="answer">是的，相信自己</div>
+                <div class="name">森林绿野</div>
+            </div>
+
+            <div class="theme-card theme-8">
+                <div class="pattern-overlay pattern-diagonal"></div>
+                <div class="icon">💎</div>
+                <div class="answer">是的，相信自己</div>
+                <div class="name">黄金时代</div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            📱 在应用中，你可以左右滑动切换这8个主题<br>
+            💾 每个主题都可以保存为独特的壁纸<br>
+            🎯 第1个保留原始经典风格 + 7个新复古像素主题<br>
+            ⚡ 切换时有触觉反馈提升体验
+        </div>
+    </div>
+
+    <script>
+        // 为主题卡片添加点击动效
+        document.querySelectorAll('.theme-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1.02)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 100);
+                }, 100);
+            });
+        });
+
+        // 键盘导航
+        let currentIndex = 0;
+        const cards = document.querySelectorAll('.theme-card');
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                currentIndex = Math.max(0, currentIndex - 1);
+                cards[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                cards[currentIndex].click();
+            } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                currentIndex = Math.min(cards.length - 1, currentIndex + 1);
+                cards[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                cards[currentIndex].click();
+            }
+        });
+    </script>
+</body>
+</html>
