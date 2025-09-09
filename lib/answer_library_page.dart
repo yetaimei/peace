@@ -210,8 +210,37 @@ class _AnswerLibraryPageState extends State<AnswerLibraryPage> {
                                           color: Colors.grey[600],
                                         ),
                                       ),
+                                      const SizedBox(width: 12),
+                                      // 来源标识
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: library.source == AnswerLibrarySource.preset 
+                                              ? Colors.blue[100] 
+                                              : Colors.orange[100],
+                                          border: Border.all(
+                                            color: library.source == AnswerLibrarySource.preset 
+                                                ? Colors.blue[300]! 
+                                                : Colors.orange[300]!,
+                                            width: 1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(3),
+                                        ),
+                                        child: Text(
+                                          library.source == AnswerLibrarySource.preset ? '预设' : '导入',
+                                          style: GoogleFonts.vt323(
+                                            fontSize: 11,
+                                            color: library.source == AnswerLibrarySource.preset 
+                                                ? Colors.blue[700] 
+                                                : Colors.orange[700],
+                                          ),
+                                        ),
+                                      ),
                                       if (library.category != null) ...[
-                                        const SizedBox(width: 16),
+                                        const SizedBox(width: 8),
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 8,

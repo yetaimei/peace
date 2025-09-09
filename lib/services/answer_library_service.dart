@@ -186,11 +186,27 @@ class AnswerLibraryService {
       'answers': library.answers,
       'author': library.author,
       'category': library.category,
+      'source': library.source.name, // 保存source字段
     };
   }
   
   /// 从JSON创建答案库
   static AnswerLibrary _libraryFromJson(Map<String, dynamic> json) {
+    // 解析source字段，如果没有则默认为imported
+    AnswerLibrarySource source = AnswerLibrarySource.imported;
+    if (json['source'] != null) {
+      switch (json['source']) {
+        case 'preset':
+          source = AnswerLibrarySource.preset;
+          break;
+        case 'imported':
+          source = AnswerLibrarySource.imported;
+          break;
+        default:
+          source = AnswerLibrarySource.imported;
+      }
+    }
+    
     return AnswerLibrary(
       id: json['id'] ?? 'custom_${DateTime.now().millisecondsSinceEpoch}',
       name: json['name'] ?? '自定义答案库',
@@ -198,6 +214,7 @@ class AnswerLibraryService {
       answers: List<String>.from(json['answers'] ?? []),
       author: json['author'],
       category: json['category'],
+      source: source,
     );
   }
 }
