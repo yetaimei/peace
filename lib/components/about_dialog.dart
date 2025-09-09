@@ -116,31 +116,7 @@ class _AboutDialogWidget extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 
-                const SizedBox(height: 16),
-                
-                // 分割线
-                Container(
-                  height: 2,
-                  color: const Color(0xFF1A1A1A),
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // 开发信息
-                Column(
-                  children: [
-                    _buildInfoRow('开发者', 'LeiLei Studio'),
-                    const SizedBox(height: 8),
-                    _buildInfoRow('Bundle ID', 'com.leilei.peace'),
-                    const SizedBox(height: 8),
-                    _buildInfoRow('构建日期', '2024年12月'),
-                    const SizedBox(height: 8),
-                    _buildInfoRow('技术栈', 'Flutter & Dart'),
-                  ],
-                ),
-                
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 
                 // 底部文字
                 Text(
@@ -159,27 +135,6 @@ class _AboutDialogWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.vt323(
-            fontSize: 14,
-            color: const Color(0xFF1A1A1A),
-          ),
-        ),
-        Text(
-          value,
-          style: GoogleFonts.vt323(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-      ],
-    );
-  }
 
   BoxDecoration _buildPixelBoxDecoration() {
     return BoxDecoration(

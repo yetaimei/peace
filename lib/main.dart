@@ -1,14 +1,21 @@
 import 'dart:math';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'settings_page.dart';
 import 'answer_display_page.dart';
+import 'answer_history_page.dart';
+import 'services/logger_service.dart';
 
 void main() {
   // 设置全屏模式
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  
+  LoggerService.info('应用启动', 'APP_LIFECYCLE');
   
   runApp(const BookOfAnswersApp());
 }
@@ -78,6 +85,8 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
   @override
   void initState() {
     super.initState();
+    LoggerService.info('主页面初始化', 'PAGE_LIFECYCLE');
+    
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
@@ -113,26 +122,78 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
 
   @override
   void dispose() {
+    LoggerService.info('主页面销毁', 'PAGE_LIFECYCLE');
     _animationController.dispose();
     _questionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveAnswerToHistory(String question, String answer) async {
+    final stopwatch = Stopwatch()..start();
+    
+    try {
+      LoggerService.dataOperation('开始保存答案历史', {
+        'question': question.length > 20 ? '${question.substring(0, 20)}...' : question,
+        'answer': answer,
+      });
+      
+      final prefs = await SharedPreferences.getInstance();
+      final historyJson = prefs.getStringList('answer_history') ?? [];
+      
+      final newItem = {
+        'question': question,
+        'answer': answer,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      };
+      
+      historyJson.add(jsonEncode(newItem));
+      
+      // 保持最多100条记录
+      if (historyJson.length > 100) {
+        historyJson.removeAt(0);
+        LoggerService.debug('清理历史记录，保持最多100条');
+      }
+      
+      await prefs.setStringList('answer_history', historyJson);
+      
+      stopwatch.stop();
+      LoggerService.performance('保存答案历史', stopwatch.elapsed, {
+        'totalRecords': historyJson.length,
+      });
+      
+    } catch (e, stackTrace) {
+      stopwatch.stop();
+      LoggerService.error('保存答案历史失败', 'DATA_OPERATION', e, stackTrace);
+    }
   }
 
   void _getAnswer() async {
     if (_questionController.text.isNotEmpty && !_isSearchingAnswer) {
       final random = Random();
       final answer = _answers[random.nextInt(_answers.length)];
+      final question = _questionController.text;
+      
+      LoggerService.userAction('用户获取答案', {
+        'question': question.length > 20 ? '${question.substring(0, 20)}...' : question,
+        'questionLength': question.length,
+      });
+      
+      // 立即清空输入框，避免用户重复点击
+      _questionController.clear();
       
       // 开始搜索动画
       setState(() {
         _isSearchingAnswer = true;
       });
+      LoggerService.debug('开始答案搜索动画');
       
       // 启动动画并重复
       _animationController.repeat(reverse: true);
       
       // 等待3秒，模拟搜索过程
+      final searchStartTime = DateTime.now();
       await Future.delayed(const Duration(seconds: 3));
+      final searchDuration = DateTime.now().difference(searchStartTime);
       
       // 停止动画
       _animationController.stop();
@@ -141,14 +202,24 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
       setState(() {
         _isSearchingAnswer = false;
       });
+      LoggerService.debug('答案搜索动画结束');
+      
+      // 保存到历史记录（在导航之前保存）
+      await _saveAnswerToHistory(question, answer);
+      
+      LoggerService.userAction('获取到答案', {
+        'answer': answer,
+        'searchDuration': '${searchDuration.inMilliseconds}ms',
+      });
       
       // 导航到答案显示页面（从下方弹出）
       if (mounted) {
+        LoggerService.navigation('主页面', '答案显示页面', '从下方弹出');
         Navigator.of(context).push(
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) => AnswerDisplayPage(
             answer: answer,
-            question: _questionController.text,
+            question: question,
           ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(0.0, 1.0); // 从下方开始
@@ -168,9 +239,13 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
         ),
       );
       }
-      
-      // 清空输入框
-      _questionController.clear();
+    } else {
+      if (_questionController.text.isEmpty) {
+        LoggerService.warning('用户尝试获取答案但问题为空');
+      }
+      if (_isSearchingAnswer) {
+        LoggerService.warning('用户尝试重复获取答案');
+      }
     }
   }
 
@@ -194,13 +269,45 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(
-                    Icons.favorite_border,
-                    size: 32,
-                    color: const Color(0xFF1A1A1A),
+                  GestureDetector(
+                    onTap: () {
+                      LoggerService.userAction('点击左上角爱心按钮');
+                      LoggerService.navigation('主页面', '答案历史页面', '从左侧滑入');
+                      Navigator.of(context).push(
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) => 
+                              const AnswerHistoryPage(),
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                            const begin = Offset(-1.0, 0.0); // 从左侧开始
+                            const end = Offset.zero;
+                            const curve = Curves.easeInOut;
+
+                            var tween = Tween(begin: begin, end: end).chain(
+                              CurveTween(curve: curve),
+                            );
+
+                            return SlideTransition(
+                              position: animation.drive(tween),
+                              child: child,
+                            );
+                          },
+                          transitionDuration: const Duration(milliseconds: 300),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(4.0),
+                      child: const Icon(
+                        Icons.favorite_border,
+                        size: 32,
+                        color: Color(0xFF1A1A1A),
+                      ),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
+                      LoggerService.userAction('点击右上角设置按钮');
+                      LoggerService.navigation('主页面', '设置页面', '普通跳转');
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => const SettingsPage(),
@@ -286,13 +393,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                                 child: Icon(
                                   Icons.menu_book,
                                   size: 80,
-                                  color: _isSearchingAnswer 
-                                      ? Color.lerp(
-                                          const Color(0xFF1A1A1A),
-                                          const Color(0xFF4CAF50),
-                                          _pulseAnimation.value * 0.5,
-                                        )
-                                      : const Color(0xFF1A1A1A),
+                                  color: const Color(0xFF1A1A1A),
                                 ),
                               ),
                             ),
@@ -303,14 +404,12 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                                 duration: const Duration(milliseconds: 300),
                                 child: Text(
                                   _isSearchingAnswer 
-                                      ? '正在为您寻找答案...'
+                                      ? '答案之书正在翻阅古老的智慧...'
                                       : '请在心中默念你的问题，然后按下按钮',
                                   key: ValueKey(_isSearchingAnswer),
                                   style: GoogleFonts.vt323(
                                     fontSize: 14,
-                                    color: _isSearchingAnswer 
-                                        ? const Color(0xFF4CAF50)
-                                        : const Color(0xFF1A1A1A),
+                                    color: const Color(0xFF1A1A1A),
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -428,7 +527,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                         const SizedBox(width: 8),
                       ],
                       Text(
-                        _isSearchingAnswer ? '搜索中...' : '获取答案',
+                        _isSearchingAnswer ? '翻阅中...' : '获取答案',
                         style: GoogleFonts.vt323(
                           fontSize: 24,
                           color: _isSearchingAnswer 
@@ -440,6 +539,60 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                   ),
                 ),
               ),
+              
+              // 调试信息显示
+              if (kDebugMode)
+                Container(
+                  margin: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: Colors.yellow.withValues(alpha: 0.3),
+                    border: Border.all(color: Colors.orange, width: 1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '🔧 调试信息',
+                        style: GoogleFonts.vt323(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF1A1A1A),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '搜索状态: ${_isSearchingAnswer ? "进行中" : "空闲"}',
+                        style: GoogleFonts.vt323(
+                          fontSize: 12,
+                          color: const Color(0xFF1A1A1A),
+                        ),
+                      ),
+                      Text(
+                        '问题长度: ${_questionController.text.length}字符',
+                        style: GoogleFonts.vt323(
+                          fontSize: 12,
+                          color: const Color(0xFF1A1A1A),
+                        ),
+                      ),
+                      Text(
+                        '动画状态: ${_animationController.isAnimating ? "运行中" : "停止"}',
+                        style: GoogleFonts.vt323(
+                          fontSize: 12,
+                          color: const Color(0xFF1A1A1A),
+                        ),
+                      ),
+                      Text(
+                        '答案库大小: ${_answers.length}条',
+                        style: GoogleFonts.vt323(
+                          fontSize: 12,
+                          color: const Color(0xFF1A1A1A),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -447,6 +600,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
       ),
     );
   }
+
 }
 
 // 像素网格背景画笔

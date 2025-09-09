@@ -105,50 +105,6 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // 问题显示区域
-                    if (widget.question.isNotEmpty) ...[
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20.0),
-                        margin: const EdgeInsets.symmetric(horizontal: 16.0),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE0E0D8),
-                          border: Border.all(
-                            color: const Color(0xFF1A1A1A),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            const BoxShadow(
-                              color: Color(0xFF1A1A1A),
-                              offset: Offset(4, 4),
-                              blurRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              '你的问题',
-                              style: GoogleFonts.vt323(
-                                fontSize: 18,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              widget.question,
-                              style: GoogleFonts.vt323(
-                                fontSize: 20,
-                                color: const Color(0xFF1A1A1A),
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-                    ],
-                    
                     // 答案显示区域
                     Container(
                       width: double.infinity,
@@ -187,18 +143,6 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
                           ),
                         ],
                       ),
-                    ),
-                    
-                    const SizedBox(height: 40),
-                    
-                    // 提示文字
-                    Text(
-                      '相信你的直觉',
-                      style: GoogleFonts.vt323(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
-                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),

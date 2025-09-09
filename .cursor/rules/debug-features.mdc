@@ -1,0 +1,42 @@
+---
+alwaysApply: true
+---
+# 调试功能开发规范
+
+## 概述
+
+在Flutter应用开发过程中，合理的调试功能能显著提高开发效率和问题排查能力。本规范定义了在项目中如何正确添加和管理调试功能。
+
+## 调试功能添加原则
+
+
+
+### 2. 状态可视化
+
+对于重要的状态变量，在调试模式下提供可视化显示：
+
+```dart
+// 调试信息显示
+if (kDebugMode)
+  Container(
+    padding: const EdgeInsets.all(8),
+    color: Colors.yellow.withOpacity(0.3),
+    child: Text(
+      '键盘状态: ${_isKeyboardVisible ? "显示" : "隐藏"}',
+      style: const TextStyle(fontSize: 12),
+    ),
+  ),
+```
+
+### 3. 日志记录
+
+使用[LoggerService](mdc:lib/services/logger_service.dart)记录关键状态变化：
+
+```dart
+void _onFocusChange() {
+  setState(() {
+    _isKeyboardVisible = _editorBloc.focusNode.hasFocus;
+  });
+  LoggerService.debug('编辑器-焦点变化-键盘状态:$_isKeyboardVisible');
+}
+```

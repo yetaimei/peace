@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'answer_library_page.dart';
 import 'components/pixel_dialog.dart';
 import 'components/about_dialog.dart';
@@ -57,6 +58,14 @@ class SettingsPage extends StatelessWidget {
                                 '分享App',
                                 () {
                                   _shareApp(context);
+                                },
+                              ),
+                              const SizedBox(height: 24),
+                              
+                              _buildSettingItem(
+                                '意见反馈',
+                                () {
+                                  _sendFeedback(context);
                                 },
                               ),
                               const SizedBox(height: 24),
@@ -195,21 +204,81 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _shareApp(BuildContext context) async {
+    // App Store链接 - 使用简单格式，确保链接有效
+    const String appStoreUrl = 'https://apps.apple.com/app/id6752237394';
+    
     try {
-      await Share.share(
-        '快来试试这个神奇的答案之书App！Peace and Love 🕊️💝\n它能为你的所有问题提供智慧的答案！',
-        subject: '答案之书 - Peace and Love',
-      );
-    } catch (e) {
-      // 如果分享失败，显示友好的错误信息
+      await Clipboard.setData(ClipboardData(text: appStoreUrl));
+      
       if (context.mounted) {
         PixelDialogExtended.show(
           context,
-          '分享功能暂时不可用\n请在真机上测试',
-          type: PixelDialogType.warning,
+          '链接已复制到剪贴板！\n快去分享给朋友们吧 🕊️💝',
+          type: PixelDialogType.success,
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        PixelDialogExtended.show(
+          context,
+          '复制链接失败\n请稍后重试',
+          type: PixelDialogType.error,
         );
       }
     }
+  }
+
+  void _sendFeedback(BuildContext context) async {
+    try {
+      final emailQuery = await _buildEmailQuery();
+      final Uri emailUri = Uri(
+        scheme: 'mailto',
+        path: 'leilei0091@icloud.com',
+        query: emailQuery,
+      );
+
+      if (await canLaunchUrl(emailUri)) {
+        await launchUrl(emailUri);
+      } else {
+        if (context.mounted) {
+          PixelDialogExtended.show(
+            context,
+            '无法打开邮件应用\n请手动发送邮件至:\nleilei0091@icloud.com',
+            type: PixelDialogType.warning,
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        PixelDialogExtended.show(
+          context,
+          '邮件功能暂时不可用\n请稍后重试或手动发送',
+          type: PixelDialogType.error,
+        );
+      }
+    }
+  }
+
+  Future<String> _buildEmailQuery() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final subject = Uri.encodeComponent('Peace答案之书 - 意见反馈');
+    final body = Uri.encodeComponent(
+      '亲爱的开发者:\n\n'
+      '我在使用Peace答案之书App时想要反馈以下内容:\n\n'
+      '[请在此处输入您的意见或建议]\n\n'
+      '应用版本: ${packageInfo.version} (${packageInfo.buildNumber})\n'
+      '应用包名: ${packageInfo.packageName}\n'
+      '设备信息: ${_getDeviceInfo()}\n\n'
+      '感谢您的耐心聆听！\n'
+      'Peace and Love 🕊️💝'
+    );
+    
+    return 'subject=$subject&body=$body';
+  }
+
+  String _getDeviceInfo() {
+    // 简单的设备信息，实际应用中可以使用device_info_plus包获取更详细信息
+    return 'iOS设备';
   }
 
   void _openPrivacyPolicy(BuildContext context) async {
@@ -244,9 +313,9 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _openAppStore(BuildContext context) async {
-    // App Store链接 - 这里使用Apple的示例链接，你需要替换为实际的App ID
+    // App Store链接 - 使用简单格式，确保链接有效
     // 格式: https://apps.apple.com/app/id[你的App ID]
-    const String appStoreUrl = 'https://apps.apple.com/cn/app/apple-store/id375380948';
+    const String appStoreUrl = 'https://apps.apple.com/app/id6752237394';
     
     try {
       final Uri url = Uri.parse(appStoreUrl);
