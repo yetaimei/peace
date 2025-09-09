@@ -1,211 +1,262 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'components/pixel_dialog.dart';
+import 'data/answer_libraries.dart';
+import 'services/answer_library_service.dart';
+import 'services/logger_service.dart';
 
-class AnswerLibraryPage extends StatelessWidget {
+class AnswerLibraryPage extends StatefulWidget {
   const AnswerLibraryPage({super.key});
+
+  @override
+  State<AnswerLibraryPage> createState() => _AnswerLibraryPageState();
+}
+
+class _AnswerLibraryPageState extends State<AnswerLibraryPage> {
+  List<AnswerLibrary> _libraries = [];
+  String _currentLibraryId = '';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLibraries();
+  }
+
+  Future<void> _loadLibraries() async {
+    try {
+      final libraries = await AnswerLibraryService.getAllLibraries();
+      final currentId = await AnswerLibraryService.getCurrentLibraryId();
+      
+      if (mounted) {
+        setState(() {
+          _libraries = libraries;
+          _currentLibraryId = currentId;
+          _isLoading = false;
+        });
+      }
+      
+      LoggerService.info('加载答案库列表: ${libraries.length}个库，当前: $currentId', 'ANSWER_LIBRARY_PAGE');
+    } catch (e) {
+      LoggerService.error('加载答案库列表失败: $e', 'ANSWER_LIBRARY_PAGE');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _selectLibrary(String libraryId) async {
+    try {
+      await AnswerLibraryService.setCurrentLibrary(libraryId);
+      setState(() {
+        _currentLibraryId = libraryId;
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '已切换答案库',
+              style: GoogleFonts.vt323(fontSize: 16),
+            ),
+            backgroundColor: Colors.green[700],
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      LoggerService.error('切换答案库失败: $e', 'ANSWER_LIBRARY_PAGE');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '切换失败',
+              style: GoogleFonts.vt323(fontSize: 16),
+            ),
+            backgroundColor: Colors.red[700],
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE0E0D8),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          color: Color(0xFFE0E0D8),
-        ),
-        child: CustomPaint(
-          painter: PixelPatternPainter(),
-          child: Padding(
-              padding: EdgeInsets.fromLTRB(16.0, MediaQuery.of(context).padding.top + 16.0, 16.0, 16.0),
-              child: Column(
-                children: [
-                  // 顶部标题栏
-                  _buildAppBar(context),
-                  
-                  // 主要内容区域
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 32),
-                        
-                        // 答案库选项列表
-                        Container(
-                          width: double.infinity,
-                          constraints: const BoxConstraints(maxWidth: 350),
-                          child: Column(
-                            children: [
-                              _buildLibraryItem(
-                                '毛泽东语录',
-                                () {
-                                  PixelDialogExtended.show(
-                                    context,
-                                    '已切换到毛泽东语录',
-                                    type: PixelDialogType.success,
-                                  );
-                                },
-                                isSelected: true, // 默认选中
-                              ),
-                              const SizedBox(height: 24),
-                              
-                              _buildLibraryItem(
-                                '其他',
-                                () {
-                                  PixelDialogExtended.show(
-                                    context,
-                                    '已切换到其他答案库',
-                                    type: PixelDialogType.success,
-                                  );
-                                },
-                                isSelected: false,
-                              ),
-                            ],
-                          ),
-                        ),
-                        
-                        const Spacer(),
-                        
-                        // 说明文字
-                        _buildDescription(),
-                      ],
-                    ),
-                  ),
-                ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppBar(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
-      child: Row(
-        children: [
-          // 返回按钮
-          GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: Container(
-              padding: const EdgeInsets.all(4.0),
-              child: const Icon(
-                Icons.arrow_back_ios,
-                size: 32,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56.0),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFFE0E0D8),
+            border: Border(
+              bottom: BorderSide(
                 color: Color(0xFF1A1A1A),
+                width: 2,
               ),
             ),
           ),
-          
-          // 标题居中
-          Expanded(
-            child: Center(
-              child: Text(
-                '答案库',
-                style: GoogleFonts.vt323(
-                  fontSize: 40,
-                  color: const Color(0xFF1A1A1A),
-                  letterSpacing: 2.0,
-                ),
-              ),
-            ),
-          ),
-          
-          // 右侧占位，保持居中
-          const SizedBox(width: 40),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLibraryItem(String title, VoidCallback onTap, {required bool isSelected}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
-        decoration: _buildPixelBoxDecoration(),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: Text(
+              '答案库',
               style: GoogleFonts.vt323(
-                fontSize: 24,
+                fontSize: 32,
                 color: const Color(0xFF1A1A1A),
               ),
             ),
-            if (isSelected)
-              const Icon(
-                Icons.check_circle,
-                size: 24,
-                color: Color(0xFF4CAF50),
-              )
-            else
-              const Icon(
-                Icons.radio_button_unchecked,
-                size: 24,
+            leading: IconButton(
+              icon: const Icon(
+                Icons.arrow_back,
                 color: Color(0xFF1A1A1A),
+                size: 28,
               ),
-          ],
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
         ),
       ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _libraries.length,
+              itemBuilder: (context, index) {
+                final library = _libraries[index];
+                final isSelected = library.id == _currentLibraryId;
+                
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0E0D8),
+                    border: Border.all(
+                      color: isSelected 
+                          ? Colors.green[700]! 
+                          : const Color(0xFF1A1A1A),
+                      width: isSelected ? 3 : 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isSelected 
+                            ? Colors.green[700]! 
+                            : const Color(0xFF1A1A1A),
+                        offset: const Offset(4, 4),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _selectLibrary(library.id),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        library.name,
+                                        style: GoogleFonts.vt323(
+                                          fontSize: 24,
+                                          color: const Color(0xFF1A1A1A),
+                                          fontWeight: isSelected 
+                                              ? FontWeight.bold 
+                                              : FontWeight.normal,
+                                        ),
+                                      ),
+                                      if (library.author != null) ...[
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          '- ${library.author}',
+                                          style: GoogleFonts.vt323(
+                                            fontSize: 16,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    library.description,
+                                    style: GoogleFonts.vt323(
+                                      fontSize: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.library_books,
+                                        size: 16,
+                                        color: Colors.grey[600],
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '${library.answers.length}条答案',
+                                        style: GoogleFonts.vt323(
+                                          fontSize: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                      if (library.category != null) ...[
+                                        const SizedBox(width: 16),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[300],
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            library.category!,
+                                            style: GoogleFonts.vt323(
+                                              fontSize: 12,
+                                              color: const Color(0xFF1A1A1A),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isSelected)
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.green[700],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
-
-  Widget _buildDescription() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Text(
-        '选择你喜欢的答案库\n不同的答案库会给出不同风格的回答',
-        style: GoogleFonts.vt323(
-          fontSize: 16,
-          color: Colors.grey[600],
-        ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  BoxDecoration _buildPixelBoxDecoration() {
-    return BoxDecoration(
-      color: const Color(0xFFE0E0D8),
-      border: Border.all(
-        color: const Color(0xFF1A1A1A),
-        width: 2,
-      ),
-      boxShadow: [
-        // 外阴影
-        const BoxShadow(
-          color: Color(0xFF1A1A1A),
-          offset: Offset(4, 4),
-          blurRadius: 0,
-        ),
-      ],
-    );
-  }
-}
-
-// 像素网格背景画笔
-class PixelPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.05)
-      ..strokeWidth = 1;
-
-    // 绘制垂直线
-    for (double x = 0; x < size.width; x += 4) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-
-    // 绘制水平线
-    for (double y = 0; y < size.height; y += 4) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

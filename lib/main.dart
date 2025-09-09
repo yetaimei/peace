@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,8 @@ import 'settings_page.dart';
 import 'answer_display_page.dart';
 import 'answer_history_page.dart';
 import 'services/logger_service.dart';
+import 'services/answer_library_service.dart';
+import 'data/answer_libraries.dart';
 
 void main() {
   // 设置全屏模式
@@ -57,30 +58,10 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
   late Animation<double> _bookScaleAnimation;
   late Animation<double> _bookRotationAnimation;
   late Animation<double> _pulseAnimation;
-
-  // 预设的答案列表（模拟HTML中的答案）
-  final List<String> _answers = [
-    '是的',
-    '不是',
-    '也许',
-    '当然',
-    '绝对不是',
-    '很有可能',
-    '问问你的心',
-    '现在还不是时候',
-    '专心致志',
-    '毫无疑问',
-    '我的回答是否定的',
-    '我的消息来源说不',
-    '前景不明朗，再问一次',
-    '再问一次',
-    '最好现在不要告诉你',
-    '无法预测',
-    '专注然后再问',
-    '不要依赖它',
-    '你可以依靠它',
-    '绝对是的'
-  ];
+  
+  // 当前答案库信息
+  AnswerLibrary? _currentLibrary;
+  String _currentLibraryName = '加载中...';
 
   @override
   void initState() {
@@ -118,6 +99,9 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
       parent: _animationController,
       curve: Curves.elasticInOut,
     ));
+    
+    // 加载当前答案库
+    _loadCurrentLibrary();
   }
 
   @override
@@ -126,6 +110,27 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
     _animationController.dispose();
     _questionController.dispose();
     super.dispose();
+  }
+  
+  /// 加载当前选中的答案库
+  Future<void> _loadCurrentLibrary() async {
+    try {
+      final library = await AnswerLibraryService.getCurrentLibrary();
+      if (mounted) {
+        setState(() {
+          _currentLibrary = library;
+          _currentLibraryName = library?.name ?? '未知答案库';
+        });
+        LoggerService.info('加载答案库成功: ${library?.name} (${library?.answers.length}条答案)', 'ANSWER_LIBRARY');
+      }
+    } catch (e) {
+      LoggerService.error('加载答案库失败: $e', 'ANSWER_LIBRARY');
+      if (mounted) {
+        setState(() {
+          _currentLibraryName = '加载失败';
+        });
+      }
+    }
   }
 
   Future<void> _saveAnswerToHistory(String question, String answer) async {
@@ -169,9 +174,10 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
 
   void _getAnswer() async {
     if (_questionController.text.isNotEmpty && !_isSearchingAnswer) {
-      final random = Random();
-      final answer = _answers[random.nextInt(_answers.length)];
       final question = _questionController.text;
+      
+      // 使用答案库服务获取答案
+      final answer = await AnswerLibraryService.getRandomAnswer();
       
       LoggerService.userAction('用户获取答案', {
         'question': question.length > 20 ? '${question.substring(0, 20)}...' : question,
@@ -305,14 +311,16 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       LoggerService.userAction('点击右上角设置按钮');
                       LoggerService.navigation('主页面', '设置页面', '普通跳转');
-                      Navigator.of(context).push(
+                      await Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => const SettingsPage(),
                         ),
                       );
+                      // 从设置页面返回后，重新加载答案库
+                      _loadCurrentLibrary();
                     },
                     child: const Icon(
                       Icons.settings,
@@ -584,7 +592,14 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                         ),
                       ),
                       Text(
-                        '答案库大小: ${_answers.length}条',
+                        '当前答案库: $_currentLibraryName',
+                        style: GoogleFonts.vt323(
+                          fontSize: 12,
+                          color: const Color(0xFF1A1A1A),
+                        ),
+                      ),
+                      Text(
+                        '答案数量: ${_currentLibrary?.answers.length ?? 0}条',
                         style: GoogleFonts.vt323(
                           fontSize: 12,
                           color: const Color(0xFF1A1A1A),

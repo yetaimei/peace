@@ -568,35 +568,39 @@ class _AnswerHistoryPageState extends State<AnswerHistoryPage> {
                                         // 答案
                                         Row(
                                           children: [
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 12.0,
-                                                vertical: 6.0,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFFE0E0D8),
-                                                border: Border.all(
-                                                  color: const Color(0xFF1A1A1A),
-                                                  width: 2,
+                                            Expanded(
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 12.0,
+                                                  vertical: 6.0,
                                                 ),
-                                                boxShadow: [
-                                                  const BoxShadow(
-                                                    color: Color(0xFF1A1A1A),
-                                                    offset: Offset(2, 2),
-                                                    blurRadius: 0,
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFE0E0D8),
+                                                  border: Border.all(
+                                                    color: const Color(0xFF1A1A1A),
+                                                    width: 2,
                                                   ),
-                                                ],
-                                              ),
-                                              child: Text(
-                                                item.answer,
-                                                style: GoogleFonts.vt323(
-                                                  fontSize: 20,
-                                                  color: const Color(0xFF1A1A1A),
-                                                  letterSpacing: 1.0,
+                                                  boxShadow: [
+                                                    const BoxShadow(
+                                                      color: Color(0xFF1A1A1A),
+                                                      offset: Offset(2, 2),
+                                                      blurRadius: 0,
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Text(
+                                                  item.answer,
+                                                  style: GoogleFonts.vt323(
+                                                    fontSize: 20,
+                                                    color: const Color(0xFF1A1A1A),
+                                                    letterSpacing: 1.0,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
                                               ),
                                             ),
-                                            const Spacer(),
+                                            const SizedBox(width: 8),
                                             const Icon(
                                               Icons.arrow_forward_ios,
                                               size: 16,
