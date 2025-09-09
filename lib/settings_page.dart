@@ -110,10 +110,10 @@ class _SettingsPageState extends State<SettingsPage> {
                                   );
                                 },
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 18),
                               
                               _buildFontSettingItem(),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 18),
                               
                               _buildSettingItem(
                                 '分享App',
@@ -121,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   _shareApp(context);
                                 },
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 18),
                               
                               _buildSettingItem(
                                 '意见反馈',
@@ -129,7 +129,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   _sendFeedback(context);
                                 },
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 18),
                               
                               _buildSettingItem(
                                 '关于我们',
@@ -137,7 +137,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   PeaceAboutDialog.show(context);
                                 },
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 18),
                               
                               _buildSettingItem(
                                 '隐私政策',
@@ -145,7 +145,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   _openPrivacyPolicy(context);
                                 },
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 18),
                               
                               _buildCheckUpdateButton(context),
                             ],
@@ -214,7 +214,7 @@ class _SettingsPageState extends State<SettingsPage> {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         decoration: _buildPixelBoxDecoration(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -242,7 +242,7 @@ class _SettingsPageState extends State<SettingsPage> {
       onTap: _openFontSelection,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         decoration: _buildPixelBoxDecoration(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -289,7 +289,7 @@ class _SettingsPageState extends State<SettingsPage> {
       },
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         decoration: _buildPixelBoxDecoration(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
