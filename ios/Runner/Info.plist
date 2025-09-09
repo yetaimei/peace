@@ -51,5 +51,9 @@
 		<string>http</string>
 		<string>itms-apps</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>我们需要访问您的相册，以便将答案壁纸保存到您的设备中。</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>我们需要访问您的相册，以便将答案壁纸保存到您的设备中。</string>
 </dict>
 </plist>
