@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -79,9 +80,8 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
   final TextEditingController _questionController = TextEditingController();
   bool _isSearchingAnswer = false;
   late AnimationController _animationController;
-  late Animation<double> _bookScaleAnimation;
-  late Animation<double> _bookRotationAnimation;
-  late Animation<double> _pulseAnimation;
+  late Animation<double> _pixelWaveAnimation;
+  late Animation<double> _scanLineAnimation;
   
   // 当前答案库信息
   AnswerLibrary? _currentLibrary;
@@ -96,42 +96,48 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
     double? height,
   }) _currentTextStyle = GoogleFonts.vt323;
 
+  // 像素动画相关
+  late Animation<double> _matrixAnimation;
+
   @override
   void initState() {
     super.initState();
     LoggerService.info('主页面初始化', 'PAGE_LIFECYCLE');
     
+    // 动画控制器
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 3000),
       vsync: this,
     );
-    
-    // 缩放动画
-    _bookScaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-    
-    // 旋转动画
-    _bookRotationAnimation = Tween<double>(
+
+    // 像素波浪动画 - 模拟数据流动
+    _pixelWaveAnimation = Tween<double>(
       begin: 0.0,
-      end: 0.05,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.linear,
+    ));
+    
+    // 扫描线动画 - 从上到下扫描
+    _scanLineAnimation = Tween<double>(
+      begin: -1.0,
+      end: 2.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
     
-    // 脉冲动画
-    _pulseAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.2,
+    
+    // 矩阵动画 - 模拟数字雨效果
+    _matrixAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
-      curve: Curves.elasticInOut,
+      curve: Curves.linear,
     ));
+    
     
     // 加载当前答案库和字体
     _loadCurrentLibrary();
@@ -242,8 +248,8 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
       });
       LoggerService.debug('开始答案搜索动画');
       
-      // 启动动画并重复
-      _animationController.repeat(reverse: true);
+      // 启动动画并循环
+      _animationController.repeat();
       
       // 等待3秒，模拟搜索过程
       final searchStartTime = DateTime.now();
@@ -481,66 +487,105 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
               
               const SizedBox(height: 32),
               
-              // 主要内容区域 - 书本和提示文字
+              // 主要内容区域 - 像素科技风格动画
               AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
-                  return Transform.scale(
-                    scale: _isSearchingAnswer ? _bookScaleAnimation.value : 1.0,
-                    child: Transform.rotate(
-                      angle: _isSearchingAnswer ? _bookRotationAnimation.value : 0.0,
-                      child: Container(
-                        width: 280,
-                        height: 280,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE0E0D8),
-                          border: Border.all(
-                            color: const Color(0xFF1A1A1A),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
+                  
+                  return Container(
+                    width: 280,
+                    height: 280,
+                    child: Stack(
+                      children: [
+                        // 背景框架
+                        Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE0E0D8),
+                            border: Border.all(
                               color: const Color(0xFF1A1A1A),
-                              offset: const Offset(4, 4),
-                              blurRadius: _isSearchingAnswer ? _pulseAnimation.value * 2 : 0,
+                              width: 2,
                             ),
-                          ],
+                          ),
+                          child: CustomPaint(
+                            painter: PixelGridPainter(
+                              animationValue: _pixelWaveAnimation.value,
+                              isAnimating: _isSearchingAnswer,
+                            ),
+                            child: Container(),
+                          ),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              child: Transform.scale(
-                                scale: _isSearchingAnswer ? _pulseAnimation.value : 1.0,
-                                child: Icon(
+                        
+                        // 扫描线效果
+                        if (_isSearchingAnswer)
+                          Positioned(
+                            top: _scanLineAnimation.value * 280,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              height: 4,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.transparent,
+                                    const Color(0xFF1A1A1A).withValues(alpha: 0.8),
+                                    const Color(0xFF1A1A1A).withValues(alpha: 0.8),
+                                    Colors.transparent,
+                                  ],
+                                  stops: const [0.0, 0.2, 0.8, 1.0],
+                                ),
+                              ),
+                            ),
+                          ),
+                        
+                        // 中心内容 - 简化版本
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // 静态书本图标
+                              if (!_isSearchingAnswer) ...[
+                                Icon(
                                   Icons.menu_book,
                                   size: 80,
                                   color: const Color(0xFF1A1A1A),
                                 ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 300),
-                                child: Text(
-                                  _isSearchingAnswer 
-                                      ? '答案之书正在翻阅古老的智慧...'
-                                      : '请在心中默念你的问题，然后按下按钮',
-                                  key: ValueKey(_isSearchingAnswer),
+                                const SizedBox(height: 16),
+                                Text(
+                                  '答案之书正在等待你的问题',
                                   style: _currentTextStyle(
                                     fontSize: 14,
                                     color: const Color(0xFF1A1A1A),
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                              ),
-                            ),
-                          ],
+                              ],
+                              
+                              // 动态扫描效果
+                              if (_isSearchingAnswer) ...[
+                                // 数据矩阵效果
+                                Container(
+                                  width: 160,
+                                  height: 120,
+                                  child: CustomPaint(
+                                    painter: DataMatrixPainter(
+                                      animationValue: _matrixAnimation.value,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  '翻阅中...',
+                                  style: _currentTextStyle(
+                                    fontSize: 14,
+                                    color: const Color(0xFF1A1A1A),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
-                      ),
+                        
+                      ],
                     ),
                   );
                 },
@@ -756,3 +801,109 @@ class PixelPatternPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
+// 像素网格动画画笔
+class PixelGridPainter extends CustomPainter {
+  final double animationValue;
+  final bool isAnimating;
+
+  PixelGridPainter({
+    required this.animationValue,
+    required this.isAnimating,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (!isAnimating) return;
+
+    final paint = Paint()
+      ..color = const Color(0xFF1A1A1A)
+      ..strokeWidth = 1;
+
+    // 绘制动态网格
+    final gridSize = 8.0;
+    final waveHeight = 20.0;
+    
+    for (double x = 0; x < size.width; x += gridSize) {
+      for (double y = 0; y < size.height; y += gridSize) {
+        final distanceFromCenter = ((x - size.width / 2).abs() + (y - size.height / 2).abs()) / size.width;
+        final waveOffset = sin((animationValue * 2 * pi) + (distanceFromCenter * 4)) * waveHeight;
+        final opacity = (0.1 + (waveOffset / waveHeight) * 0.1).clamp(0.0, 0.2);
+        
+        paint.color = const Color(0xFF1A1A1A).withValues(alpha: opacity);
+        canvas.drawRect(
+          Rect.fromLTWH(x, y, gridSize - 1, gridSize - 1),
+          paint,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(PixelGridPainter oldDelegate) => 
+      oldDelegate.animationValue != animationValue ||
+      oldDelegate.isAnimating != isAnimating;
+}
+
+
+// 数据矩阵画笔
+class DataMatrixPainter extends CustomPainter {
+  final double animationValue;
+
+  DataMatrixPainter({required this.animationValue});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF1A1A1A)
+      ..strokeWidth = 1;
+
+    // 绘制数据点矩阵
+    final dotSize = 4.0;
+    final spacing = 8.0;
+    
+    for (double x = 0; x < size.width; x += spacing) {
+      for (double y = 0; y < size.height; y += spacing) {
+        final noise = sin(x * 0.1 + animationValue * 2 * pi) * 
+                      cos(y * 0.1 + animationValue * 2 * pi);
+        final opacity = (0.2 + noise * 0.3).clamp(0.0, 0.8);
+        
+        paint.color = const Color(0xFF1A1A1A).withValues(alpha: opacity);
+        
+        // 随机显示不同形状
+        if ((x + y + animationValue * 100).toInt() % 3 == 0) {
+          canvas.drawRect(
+            Rect.fromLTWH(x, y, dotSize, dotSize),
+            paint,
+          );
+        } else {
+          canvas.drawCircle(
+            Offset(x + dotSize / 2, y + dotSize / 2),
+            dotSize / 2,
+            paint,
+          );
+        }
+      }
+    }
+
+    // 绘制连接线
+    paint.strokeWidth = 0.5;
+    for (int i = 0; i < 5; i++) {
+      final startX = (animationValue * size.width + i * 40) % size.width;
+      final startY = sin(animationValue * 2 * pi + i) * size.height / 2 + size.height / 2;
+      final endX = (startX + 40) % size.width;
+      final endY = sin(animationValue * 2 * pi + i + 1) * size.height / 2 + size.height / 2;
+      
+      canvas.drawLine(
+        Offset(startX, startY),
+        Offset(endX, endY),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(DataMatrixPainter oldDelegate) => 
+      oldDelegate.animationValue != animationValue;
+}
+
