@@ -9,6 +9,7 @@ import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import 'services/logger_service.dart';
 import 'components/pixel_dialog.dart';
+import 'components/theme_layouts.dart';
 
 // 主题数据类
 class PixelTheme {
@@ -21,6 +22,7 @@ class PixelTheme {
   final IconData icon;
   final List<Color> gradientColors;
   final PatternType patternType;
+  final LayoutType layoutType;
   
   const PixelTheme({
     required this.name,
@@ -32,6 +34,7 @@ class PixelTheme {
     required this.icon,
     required this.gradientColors,
     required this.patternType,
+    required this.layoutType,
   });
 }
 
@@ -44,6 +47,27 @@ enum PatternType {
   circuit,
   hexagon,
   stars,
+}
+
+// 布局类型枚举
+enum LayoutType {
+  classic,        // 经典居中布局
+  matrix,         // Matrix代码雨风格
+  cyberpunk,      // 赛博朋克科技界面
+  retro,          // 复古电视机风格
+  ocean,          // 海洋波浪层叠
+  kawaii,         // 可爱卡片式
+  nature,         // 自然有机布局
+  luxury,         // 奢华对称布局
+  // 新增布局类型
+  terminal,       // 终端命令行风格
+  gameboy,        // Game Boy掌机风格
+  kindle,         // 电子书阅读器风格
+  vhs,            // VHS录像带风格
+  calculator,     // 计算器风格
+  pager,          // 传呼机/BP机风格
+  radioTuner,     // 收音机调频风格
+  nixie,          // 辉光管数码显示风格
 }
 
 class AnswerDisplayPage extends StatefulWidget {
@@ -86,6 +110,7 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
       icon: Icons.auto_awesome,
       gradientColors: [Color(0xFFE0E0D8), Color(0xFFE0E0D8)],
       patternType: PatternType.grid,
+      layoutType: LayoutType.classic,
     ),
     
     // 2. 经典复古绿屏 - Matrix风格
@@ -99,6 +124,7 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
       icon: Icons.computer,
       gradientColors: [Color(0xFF001100), Color(0xFF003300)],
       patternType: PatternType.grid,
+      layoutType: LayoutType.matrix,
     ),
     
     // 3. 赛博朋克紫 - 未来科幻风
@@ -112,6 +138,7 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
       icon: Icons.electric_bolt,
       gradientColors: [Color(0xFF0A0A1A), Color(0xFF2D1B69)],
       patternType: PatternType.circuit,
+      layoutType: LayoutType.cyberpunk,
     ),
     
     // 4. 复古橙色 - 80年代风格
@@ -125,6 +152,7 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
       icon: Icons.radio,
       gradientColors: [Color(0xFF1A0A00), Color(0xFF2E1A0A)],
       patternType: PatternType.waves,
+      layoutType: LayoutType.retro,
     ),
     
     // 5. 海洋蓝调 - 深海科技风
@@ -138,6 +166,7 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
       icon: Icons.waves,
       gradientColors: [Color(0xFF001122), Color(0xFF002244)],
       patternType: PatternType.hexagon,
+      layoutType: LayoutType.ocean,
     ),
     
     // 6. 樱花粉 - 可爱像素风
@@ -151,6 +180,7 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
       icon: Icons.favorite,
       gradientColors: [Color(0xFF2A1A20), Color(0xFF3A2A30)],
       patternType: PatternType.stars,
+      layoutType: LayoutType.kawaii,
     ),
     
     // 7. 森林绿 - 自然像素风
@@ -164,6 +194,7 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
       icon: Icons.forest,
       gradientColors: [Color(0xFF0A1A0A), Color(0xFF1A2A1A)],
       patternType: PatternType.dots,
+      layoutType: LayoutType.nature,
     ),
     
     // 8. 黄金时代 - 金色奢华
@@ -177,6 +208,133 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
       icon: Icons.diamond,
       gradientColors: [Color(0xFF1A1A00), Color(0xFF2A2A00)],
       patternType: PatternType.diagonal,
+      layoutType: LayoutType.luxury,
+    ),
+    
+    // 9. 终端黑客 - 命令行风格
+    PixelTheme(
+      name: '终端黑客',
+      backgroundColor: Color(0xFF0D1117),
+      primaryColor: Color(0xFF161B22),
+      textColor: Color(0xFF58A6FF),
+      borderColor: Color(0xFF30363D),
+      shadowColor: Color(0xFF010409),
+      icon: Icons.terminal,
+      gradientColors: [Color(0xFF0D1117), Color(0xFF161B22)],
+      patternType: PatternType.grid,
+      layoutType: LayoutType.terminal,
+    ),
+    
+    // 10. Game Boy怀旧 - 掌机风格
+    PixelTheme(
+      name: 'Game Boy',
+      backgroundColor: Color(0xFF9BBB0F),
+      primaryColor: Color(0xFF8BAC0F),
+      textColor: Color(0xFF306230),
+      borderColor: Color(0xFF0F380F),
+      shadowColor: Color(0xFF0F2027),
+      icon: Icons.videogame_asset,
+      gradientColors: [Color(0xFF9BBB0F), Color(0xFF8BAC0F)],
+      patternType: PatternType.dots,
+      layoutType: LayoutType.gameboy,
+    ),
+    
+    // 11. Kindle阅读 - 电纸书风格
+    PixelTheme(
+      name: 'Kindle阅读',
+      backgroundColor: Color(0xFFF5F5DC),
+      primaryColor: Color(0xFFE5E5E5),
+      textColor: Color(0xFF2F2F2F),
+      borderColor: Color(0xFF8B8B8B),
+      shadowColor: Color(0xFFD3D3D3),
+      icon: Icons.menu_book,
+      gradientColors: [Color(0xFFF5F5DC), Color(0xFFE5E5E5)],
+      patternType: PatternType.dots,
+      layoutType: LayoutType.kindle,
+    ),
+    
+    // 12. VHS录像 - 磁带风格
+    PixelTheme(
+      name: 'VHS录像',
+      backgroundColor: Color(0xFF2B1810),
+      primaryColor: Color(0xFF3D2318),
+      textColor: Color(0xFFFF6B35),
+      borderColor: Color(0xFFD2691E),
+      shadowColor: Color(0xFF1A0F08),
+      icon: Icons.videocam,
+      gradientColors: [Color(0xFF2B1810), Color(0xFF3D2318)],
+      patternType: PatternType.waves,
+      layoutType: LayoutType.vhs,
+    ),
+    
+    // 13. 计算器风格 - 数字显示
+    PixelTheme(
+      name: '计算器',
+      backgroundColor: Color(0xFF2C2C2C),
+      primaryColor: Color(0xFF3C3C3C),
+      textColor: Color(0xFF00FF41),
+      borderColor: Color(0xFF4C4C4C),
+      shadowColor: Color(0xFF1C1C1C),
+      icon: Icons.calculate,
+      gradientColors: [Color(0xFF2C2C2C), Color(0xFF3C3C3C)],
+      patternType: PatternType.grid,
+      layoutType: LayoutType.calculator,
+    ),
+    
+    // 14. 传呼机 - BP机风格
+    PixelTheme(
+      name: 'BP传呼机',
+      backgroundColor: Color(0xFF1B1B1B),
+      primaryColor: Color(0xFF2B2B2B),
+      textColor: Color(0xFF32CD32),
+      borderColor: Color(0xFF228B22),
+      shadowColor: Color(0xFF0B0B0B),
+      icon: Icons.message,
+      gradientColors: [Color(0xFF1B1B1B), Color(0xFF2B2B2B)],
+      patternType: PatternType.dots,
+      layoutType: LayoutType.pager,
+    ),
+    
+    // 15. 收音机调频 - 电台风格
+    PixelTheme(
+      name: '收音机',
+      backgroundColor: Color(0xFF8B4513),
+      primaryColor: Color(0xFFA0522D),
+      textColor: Color(0xFFFFD700),
+      borderColor: Color(0xFFCD853F),
+      shadowColor: Color(0xFF654321),
+      icon: Icons.radio,
+      gradientColors: [Color(0xFF8B4513), Color(0xFFA0522D)],
+      patternType: PatternType.waves,
+      layoutType: LayoutType.radioTuner,
+    ),
+    
+    // 16. 辉光管 - 数码管风格
+    PixelTheme(
+      name: '辉光管',
+      backgroundColor: Color(0xFF0F0F0F),
+      primaryColor: Color(0xFF1F1F1F),
+      textColor: Color(0xFFFF4500),
+      borderColor: Color(0xFFFF6347),
+      shadowColor: Color(0xFF000000),
+      icon: Icons.lightbulb,
+      gradientColors: [Color(0xFF0F0F0F), Color(0xFF1F1F1F)],
+      patternType: PatternType.circuit,
+      layoutType: LayoutType.nixie,
+    ),
+    
+    // 17. 暗黑经典 - 原始经典的反色调
+    PixelTheme(
+      name: '暗黑经典',
+      backgroundColor: Color(0xFF1F1F27),
+      primaryColor: Color(0xFF1F1F27),
+      textColor: Color(0xFFE5E5E5),
+      borderColor: Color(0xFFE5E5E5),
+      shadowColor: Color(0xFFE5E5E5),
+      icon: Icons.dark_mode,
+      gradientColors: [Color(0xFF1F1F27), Color(0xFF1F1F27)],
+      patternType: PatternType.grid,
+      layoutType: LayoutType.classic,
     ),
   ];
   
@@ -375,49 +533,168 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
       ),
       child: CustomPaint(
         painter: PixelPatternPainter(theme),
-        child: Center(
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(32.0),
-            margin: const EdgeInsets.symmetric(horizontal: 36.0),
-            decoration: BoxDecoration(
-              color: theme.primaryColor,
-              border: Border.all(
-                color: theme.borderColor,
-                width: 3,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.shadowColor,
-                  offset: const Offset(6, 6),
-                  blurRadius: 0,
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  theme.icon,
-                  size: 48,
-                  color: theme.textColor,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  widget.answer,
-                  style: GoogleFonts.vt323(
-                    fontSize: 36,
-                    color: theme.textColor,
-                    letterSpacing: 2.0,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
+        child: _buildLayoutByType(theme),
+      ),
+    );
+  }
+
+  // 根据布局类型构建不同的布局
+  Widget _buildLayoutByType(PixelTheme theme) {
+    switch (theme.layoutType) {
+      case LayoutType.classic:
+        return _buildClassicLayout(theme);
+      case LayoutType.matrix:
+        return _buildMatrixLayout(theme);
+      case LayoutType.cyberpunk:
+        return _buildCyberpunkLayout(theme);
+      case LayoutType.retro:
+        return _buildRetroLayout(theme);
+      case LayoutType.ocean:
+        return _buildOceanLayout(theme);
+      case LayoutType.kawaii:
+        return _buildKawaiiLayout(theme);
+      case LayoutType.nature:
+        return _buildNatureLayout(theme);
+      case LayoutType.luxury:
+        return _buildLuxuryLayout(theme);
+      // 新增的布局类型
+      case LayoutType.terminal:
+        return _buildTerminalLayout(theme);
+      case LayoutType.gameboy:
+        return _buildGameBoyLayout(theme);
+      case LayoutType.kindle:
+        return _buildKindleLayout(theme);
+      case LayoutType.vhs:
+        return _buildVhsLayout(theme);
+      case LayoutType.calculator:
+        return _buildCalculatorLayout(theme);
+      case LayoutType.pager:
+        return _buildPagerLayout(theme);
+      case LayoutType.radioTuner:
+        return _buildRadioTunerLayout(theme);
+      case LayoutType.nixie:
+        return _buildNixieLayout(theme);
+    }
+  }
+
+  // 1. 经典布局 - 居中简洁
+  Widget _buildClassicLayout(PixelTheme theme) {
+    return Center(
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(32.0),
+        margin: const EdgeInsets.symmetric(horizontal: 36.0),
+        decoration: BoxDecoration(
+          color: theme.primaryColor,
+          border: Border.all(
+            color: theme.borderColor,
+            width: 3,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: theme.shadowColor,
+              offset: const Offset(6, 6),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              theme.icon,
+              size: 48,
+              color: theme.textColor,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              widget.answer,
+              style: GoogleFonts.vt323(
+                fontSize: 36,
+                color: theme.textColor,
+                letterSpacing: 2.0,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  // 2. Matrix布局
+  Widget _buildMatrixLayout(PixelTheme theme) {
+    return ThemeLayouts.buildMatrixLayout(theme, widget.answer);
+  }
+
+  // 3. 赛博朋克布局
+  Widget _buildCyberpunkLayout(PixelTheme theme) {
+    return ThemeLayouts.buildCyberpunkLayout(theme, widget.answer);
+  }
+
+  // 4. 复古布局
+  Widget _buildRetroLayout(PixelTheme theme) {
+    return ThemeLayouts.buildRetroLayout(theme, widget.answer);
+  }
+
+  // 5. 海洋布局
+  Widget _buildOceanLayout(PixelTheme theme) {
+    return ThemeLayouts.buildOceanLayout(theme, widget.answer);
+  }
+
+  // 6. 可爱布局
+  Widget _buildKawaiiLayout(PixelTheme theme) {
+    return ThemeLayouts.buildKawaiiLayout(theme, widget.answer);
+  }
+
+  // 7. 自然布局
+  Widget _buildNatureLayout(PixelTheme theme) {
+    return ThemeLayouts.buildNatureLayout(theme, widget.answer);
+  }
+
+  // 8. 奢华布局
+  Widget _buildLuxuryLayout(PixelTheme theme) {
+    return ThemeLayouts.buildLuxuryLayout(theme, widget.answer);
+  }
+
+  // 9. 终端布局
+  Widget _buildTerminalLayout(PixelTheme theme) {
+    return ThemeLayouts.buildTerminalLayout(theme, widget.answer);
+  }
+
+  // 10. Game Boy布局
+  Widget _buildGameBoyLayout(PixelTheme theme) {
+    return ThemeLayouts.buildGameBoyLayout(theme, widget.answer);
+  }
+
+  // 11. Kindle布局
+  Widget _buildKindleLayout(PixelTheme theme) {
+    return ThemeLayouts.buildKindleLayout(theme, widget.answer);
+  }
+
+  // 12. VHS布局
+  Widget _buildVhsLayout(PixelTheme theme) {
+    return ThemeLayouts.buildVhsLayout(theme, widget.answer);
+  }
+
+  // 13. 计算器布局
+  Widget _buildCalculatorLayout(PixelTheme theme) {
+    return ThemeLayouts.buildCalculatorLayout(theme, widget.answer);
+  }
+
+  // 14. 传呼机布局
+  Widget _buildPagerLayout(PixelTheme theme) {
+    return ThemeLayouts.buildPagerLayout(theme, widget.answer);
+  }
+
+  // 15. 收音机布局
+  Widget _buildRadioTunerLayout(PixelTheme theme) {
+    return ThemeLayouts.buildRadioTunerLayout(theme, widget.answer);
+  }
+
+  // 16. 辉光管布局
+  Widget _buildNixieLayout(PixelTheme theme) {
+    return ThemeLayouts.buildNixieLayout(theme, widget.answer);
   }
 
   @override

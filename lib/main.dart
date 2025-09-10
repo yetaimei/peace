@@ -316,7 +316,69 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
         ),
         child: CustomPaint(
           painter: PixelPatternPainter(),
-          child: SingleChildScrollView(
+          child: GestureDetector(
+            onPanEnd: (details) {
+              // 检测水平滑动手势
+              if (details.velocity.pixelsPerSecond.dx > 300) {
+                // 向右滑动 - 呼出历史答案页面
+                LoggerService.userAction('向右滑动手势 - 打开历史页面');
+                LoggerService.navigation('主页面', '答案历史页面', '向右滑动手势');
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => 
+                        const AnswerHistoryPage(),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(-1.0, 0.0); // 从左侧开始
+                      const end = Offset.zero;
+                      const curve = Curves.easeInOut;
+
+                      var tween = Tween(begin: begin, end: end).chain(
+                        CurveTween(curve: curve),
+                      );
+
+                      return SlideTransition(
+                        position: animation.drive(tween),
+                        child: child,
+                      );
+                    },
+                    transitionDuration: const Duration(milliseconds: 300),
+                  ),
+                );
+              } else if (details.velocity.pixelsPerSecond.dx < -300) {
+                // 向左滑动 - 呼出设置页面
+                LoggerService.userAction('向左滑动手势 - 打开设置页面');
+                LoggerService.navigation('主页面', '设置页面', '向左滑动手势');
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => 
+                        const SettingsPage(),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(1.0, 0.0); // 从右侧开始
+                      const end = Offset.zero;
+                      const curve = Curves.easeInOut;
+
+                      var tween = Tween(begin: begin, end: end).chain(
+                        CurveTween(curve: curve),
+                      );
+
+                      return SlideTransition(
+                        position: animation.drive(tween),
+                        child: child,
+                      );
+                    },
+                    transitionDuration: const Duration(milliseconds: 300),
+                  ),
+                ).then((_) {
+                  // 从设置页面返回后，重新加载答案库和检查字体变更
+                  _loadCurrentLibrary();
+                  _loadCurrentFont();
+                  if (widget.onFontChanged != null) {
+                    widget.onFontChanged!();
+                  }
+                });
+              }
+            },
+            child: SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(16.0, MediaQuery.of(context).padding.top + 16.0, 16.0, 16.0),
               child: Column(
                 children: [
@@ -664,6 +726,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
               ],
             ),
           ),
+        ),
         ),
       ),
     );

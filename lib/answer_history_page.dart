@@ -333,7 +333,16 @@ class _AnswerHistoryPageState extends State<AnswerHistoryPage> {
         ),
         child: CustomPaint(
           painter: PixelPatternPainter(),
-          child: Column(
+          child: GestureDetector(
+            onPanEnd: (details) {
+              // 检测向左滑动手势，返回主页面
+              if (details.velocity.pixelsPerSecond.dx < -300) {
+                LoggerService.userAction('向左滑动手势 - 返回主页面');
+                LoggerService.navigation('答案历史页面', '主页面', '向左滑动手势');
+                Navigator.of(context).pop();
+              }
+            },
+            child: Column(
             children: [
               // 顶部标题栏
               Container(
@@ -615,6 +624,7 @@ class _AnswerHistoryPageState extends State<AnswerHistoryPage> {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

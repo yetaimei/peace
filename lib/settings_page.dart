@@ -79,7 +79,14 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         child: CustomPaint(
           painter: PixelPatternPainter(),
-          child: SafeArea(
+          child: GestureDetector(
+            onPanEnd: (details) {
+              // 检测向右滑动手势，返回主页面
+              if (details.velocity.pixelsPerSecond.dx > 300) {
+                Navigator.of(context).pop();
+              }
+            },
+            child: SafeArea(
             child: Column(
               children: [
                 // 顶部标题栏
@@ -164,7 +171,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
-          ),
+        ),
+        ),
         ),
       ),
     );
