@@ -209,9 +209,9 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
       historyJson.add(jsonEncode(newItem));
       
       // 保持最多100条记录
-      if (historyJson.length > 100) {
+      if (historyJson.length > 1000) {
         historyJson.removeAt(0);
-        LoggerService.debug('清理历史记录，保持最多100条');
+        LoggerService.debug('清理历史记录，保持最多1000条');
       }
       
       await prefs.setStringList('answer_history', historyJson);

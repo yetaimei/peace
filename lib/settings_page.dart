@@ -399,8 +399,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _openPrivacyPolicy(BuildContext context) async {
-    // 隐私政策链接 - 这里是一个占位链接，后期你可以替换为实际的隐私政策页面
-    const String privacyPolicyUrl = 'https://www.example.com/privacy-policy';
+    // 隐私政策链接 - Notion页面
+    const String privacyPolicyUrl = 'https://www.notion.so/leilei0091/26b5e372803f8048b94de5dbb50fe30a?source=copy_link';
     
     try {
       final Uri url = Uri.parse(privacyPolicyUrl);
