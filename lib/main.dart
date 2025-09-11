@@ -708,66 +708,6 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                 ),
               ),
               
-              // 调试信息显示
-              if (kDebugMode)
-                Container(
-                  margin: const EdgeInsets.all(16.0),
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    color: Colors.yellow.withValues(alpha: 0.3),
-                    border: Border.all(color: Colors.orange, width: 1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '🔧 调试信息',
-                        style: _currentTextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1A1A1A),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '搜索状态: ${_isSearchingAnswer ? "进行中" : "空闲"}',
-                        style: _currentTextStyle(
-                          fontSize: 12,
-                          color: const Color(0xFF1A1A1A),
-                        ),
-                      ),
-                      Text(
-                        '问题长度: ${_questionController.text.length}字符',
-                        style: _currentTextStyle(
-                          fontSize: 12,
-                          color: const Color(0xFF1A1A1A),
-                        ),
-                      ),
-                      Text(
-                        '动画状态: ${_animationController.isAnimating ? "运行中" : "停止"}',
-                        style: _currentTextStyle(
-                          fontSize: 12,
-                          color: const Color(0xFF1A1A1A),
-                        ),
-                      ),
-                      Text(
-                        '当前答案库: $_currentLibraryName',
-                        style: _currentTextStyle(
-                          fontSize: 12,
-                          color: const Color(0xFF1A1A1A),
-                        ),
-                      ),
-                      Text(
-                        '答案数量: ${_currentLibrary?.answers.length ?? 0}条',
-                        style: _currentTextStyle(
-                          fontSize: 12,
-                          color: const Color(0xFF1A1A1A),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),

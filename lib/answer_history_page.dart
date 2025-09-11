@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -458,24 +457,6 @@ class _AnswerHistoryPageState extends State<AnswerHistoryPage> {
                 ),
               ),
               
-              // 调试信息显示
-              if (kDebugMode)
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE0E0D8),
-                    border: Border.all(color: const Color(0xFF1A1A1A), width: 1),
-                  ),
-                  child: Text(
-                    '历史记录: ${_historyItems.length}条 | 状态: ${_isLoading ? "加载中" : "完成"}',
-                    style: GoogleFonts.vt323(
-                      fontSize: 12,
-                      color: const Color(0xFF1A1A1A).withValues(alpha: 0.7),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
               
               // 内容区域
               Expanded(

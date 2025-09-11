@@ -4,12 +4,22 @@
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
+
         {
             "name": "16-pro-18.5-home",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
             "deviceId": "A30DA1D3-51A2-4B00-BDEA-759A16FEBCD0"
+        },
+        {
+            "name": "16-pro-18.5-home-release",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "deviceId": "A30DA1D3-51A2-4B00-BDEA-759A16FEBCD0",
+             "flutterMode": "release"
         },
         {
             "name": "16-真机-debug",
