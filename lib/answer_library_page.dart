@@ -125,8 +125,13 @@ class _AnswerLibraryPageState extends State<AnswerLibraryPage> {
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: _libraries.length,
+              itemCount: _libraries.length + 1, // +1 for "更多答案" item
               itemBuilder: (context, index) {
+                // 如果是最后一个item，显示"更多答案"
+                if (index == _libraries.length) {
+                  return _buildMoreAnswersItem();
+                }
+                
                 final library = _libraries[index];
                 final isSelected = library.id == _currentLibraryId;
                 
@@ -286,6 +291,106 @@ class _AnswerLibraryPageState extends State<AnswerLibraryPage> {
                 );
               },
             ),
+    );
+  }
+
+  /// 构建"更多答案"项
+  Widget _buildMoreAnswersItem() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F5),
+        border: Border.all(
+          color: Colors.grey[400]!,
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[400]!,
+            offset: const Offset(2, 2),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        '更多答案',
+                        style: GoogleFonts.vt323(
+                          fontSize: 24,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.orange[100],
+                          border: Border.all(
+                            color: Colors.orange[300]!,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '即将推出',
+                          style: GoogleFonts.vt323(
+                            fontSize: 12,
+                            color: Colors.orange[700],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '更多精彩答案库正在开发中，敬请期待...',
+                    style: GoogleFonts.vt323(
+                      fontSize: 16,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.schedule,
+                        size: 16,
+                        color: Colors.grey[500],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '敬请期待',
+                        style: GoogleFonts.vt323(
+                          fontSize: 14,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.lock_outline,
+              color: Colors.grey[400],
+              size: 24,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
