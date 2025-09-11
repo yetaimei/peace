@@ -45,11 +45,11 @@
             "deviceId": "78836151-8023-4F9D-A76B-6A928B4B6FA0"
         },
         {
-            "name": "ipad-11-M4",
+            "name": "ipad-13-M4",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "deviceId": "298DD8D3-6B16-42C0-9E77-5B314BC86F96",
+            "deviceId": "9DD62869-6F7D-4DFF-A24B-B0A9EBD9C692",
             "flutterMode": "debug"
         }
     ]
