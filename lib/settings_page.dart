@@ -380,14 +380,17 @@ class _SettingsPageState extends State<SettingsPage> {
     final packageInfo = await PackageInfo.fromPlatform();
     final subject = Uri.encodeComponent('Peace答案之书 - 意见反馈');
     final body = Uri.encodeComponent(
-      '亲爱的开发者:\n\n'
-      '我在使用Peace答案之书App时想要反馈以下内容:\n\n'
-      '[请在此处输入您的意见或建议]\n\n'
+      
+      'Peace and Love 🕊️💝'
+
+      '问题:\n\n'
+      '功能许愿:\n\n'
+      
       '应用版本: ${packageInfo.version} (${packageInfo.buildNumber})\n'
       '应用包名: ${packageInfo.packageName}\n'
       '设备信息: ${_getDeviceInfo()}\n\n'
-      '感谢您的耐心聆听！\n'
-      'Peace and Love 🕊️💝'
+     
+     
     );
     
     return 'subject=$subject&body=$body';
