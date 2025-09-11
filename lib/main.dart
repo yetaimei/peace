@@ -394,7 +394,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                 children: [
                   GestureDetector(
                     onTap: () {
-                      LoggerService.userAction('点击左上角爱心按钮');
+                      LoggerService.userAction('点击左上角历史按钮');
                       LoggerService.navigation('主页面', '答案历史页面', '从左侧滑入');
                       Navigator.of(context).push(
                         PageRouteBuilder(
@@ -421,7 +421,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                     child: Container(
                       padding: const EdgeInsets.all(4.0),
                       child: const Icon(
-                        Icons.favorite_border,
+                        Icons.notes,
                         size: 32,
                         color: Color(0xFF1A1A1A),
                       ),
@@ -460,7 +460,7 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
                   Text(
                     'Peace and Love',
                     style: _currentTextStyle(
-                      fontSize: 18,
+                      fontSize: 38,
                       color: const Color(0xFF1A1A1A),
                       letterSpacing: 1.5,
                     ),
