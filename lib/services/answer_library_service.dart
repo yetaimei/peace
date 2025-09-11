@@ -14,7 +14,7 @@ class AnswerLibraryService {
   /// 获取当前选中的答案库ID
   static Future<String> getCurrentLibraryId() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_currentLibraryKey) ?? 'default';
+    return prefs.getString(_currentLibraryKey) ?? 'mao_zedong';
   }
   
   /// 设置当前答案库
@@ -39,9 +39,9 @@ class AnswerLibraryService {
     try {
       return customLibraries.firstWhere((lib) => lib.id == libraryId);
     } catch (e) {
-      // 如果找不到，返回默认库
-      LoggerService.warning('找不到答案库 $libraryId，使用默认库');
-      return AnswerLibraries.defaultLibrary;
+      // 如果找不到，返回毛泽东语录库
+      LoggerService.warning('找不到答案库 $libraryId，使用毛泽东语录库');
+      return AnswerLibraries.maoZedongLibrary;
     }
   }
   
@@ -111,10 +111,10 @@ class AnswerLibraryService {
     
     await prefs.setStringList(_customLibrariesKey, customLibrariesJson);
     
-    // 如果删除的是当前选中的库，切换到默认库
+    // 如果删除的是当前选中的库，切换到毛泽东语录库
     final currentId = await getCurrentLibraryId();
     if (currentId == libraryId) {
-      await setCurrentLibrary('default');
+      await setCurrentLibrary('mao_zedong');
     }
     
     LoggerService.info('删除自定义答案库: $libraryId', 'ANSWER_LIBRARY');

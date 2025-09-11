@@ -27,14 +27,6 @@ class AnswerLibrary {
 
 /// 预设的答案库
 class AnswerLibraries {
-  static const AnswerLibrary defaultLibrary = AnswerLibrary(
-    id: 'default',
-    name: '经典答案库',
-    description: '包含是、否、也许等经典回答',
-    answers: [
-      
-    ],
-  );
 
   static const AnswerLibrary maoZedongLibrary = AnswerLibrary(
     id: 'mao_zedong',
@@ -102,7 +94,6 @@ class AnswerLibraries {
       '知识就是力量',
       '批评与自我批评',
       '古为今用，洋为中用',
-      '百花齐放，百家争鸣',
       
       // 文化教育
       '德智体全面发展',
@@ -114,7 +105,6 @@ class AnswerLibraries {
       '民族的科学的大众的文化',
       '让哲学从哲学家的课堂上和书本里解放出来',
       '文艺为人民服务，为社会主义服务',
-      '百花齐放，推陈出新',
       '团结—批评—团结',
       
       // 经济建设
@@ -245,24 +235,36 @@ class AnswerLibraries {
       '无所谓',
       '爱咋咋地',
       '关我屁事',
-      '问问你的心',
-      '现在还不是时候',
+      '打工人表示很累',
+      '摸鱼时间到了',
       '糊弄一下',
       '懒得管',
       '我的回答是否定的',
-      '再问一次',
-      '最好现在不要告诉你',
-      '无法预测',
-      '专注然后再问',
-      '不要依赖它',
-      '你可以依靠它',
-      '绝对是的'
+      '别问了，问了也白问',
+      '算了算了，不想说',
+      '谁知道呢，随缘吧',
+      '先摸会儿鱼，待会儿再说',
+      '随便啦，靠谁都一样',
+      '就这样吧，爱咋咋地',
+      '行吧，就这么定了',
+      '我只是个打工的',
+      '今天又是摸鱼的一天',
+      '内卷个锤子',
+      'emo了emo了',
+      '今天也要假装努力呢',
+      '下班时间到了',
+      '谁还不是个宝宝呢',
+      '生活已经很累了',
+      '佛系青年在线摆烂',
+      '我不干了行吧',
+      '累了，毁灭吧',
+      '明天再说吧（明天：明天再说）',
+      '饶了我吧'
     ],
   );
 
   /// 所有可用的答案库
   static const List<AnswerLibrary> allLibraries = [
-    defaultLibrary,
     maoZedongLibrary,
     zenLibrary,
     encouragingLibrary,
