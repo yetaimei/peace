@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class PeaceAboutDialog {
   /// 显示关于我们的详细弹窗
@@ -13,8 +14,34 @@ class PeaceAboutDialog {
   }
 }
 
-class _AboutDialogWidget extends StatelessWidget {
+class _AboutDialogWidget extends StatefulWidget {
   const _AboutDialogWidget();
+
+  @override
+  State<_AboutDialogWidget> createState() => _AboutDialogWidgetState();
+}
+
+class _AboutDialogWidgetState extends State<_AboutDialogWidget> {
+  String _appVersion = '加载中...';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAppVersion();
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _appVersion = 'Version ${packageInfo.version}';
+      });
+    } catch (e) {
+      setState(() {
+        _appVersion = 'Version 1.0.0';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +123,7 @@ class _AboutDialogWidget extends StatelessWidget {
                 
                 // 版本信息
                 Text(
-                  'Version 1.0.0',
+                  _appVersion,
                   style: GoogleFonts.vt323(
                     fontSize: 16,
                     color: Colors.grey[600],
