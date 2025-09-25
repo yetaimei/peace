@@ -137,15 +137,15 @@ struct StitchAThemeView: View {
             )
         } else if area < 20000 { // 中等组件
             return StitchAConfig(
-                quoteSize: minSide * 0.10,
-                authorSize: minSide * 0.08,
+                quoteSize: minSide * 0.14,
+                authorSize: minSide * 0.11,
                 spacing: minSide * 0.05,
                 padding: minSide * 0.05
             )
         } else { // 大组件
             return StitchAConfig(
-                quoteSize: minSide * 0.08,
-                authorSize: minSide * 0.06,
+                quoteSize: minSide * 0.16,
+                authorSize: minSide * 0.12,
                 spacing: minSide * 0.06,
                 padding: minSide * 0.04
             )
@@ -215,15 +215,15 @@ struct GlassThemeView: View {
             )
         } else if area < 20000 { // 中等组件
             return GlassConfig(
-                answerSize: minSide * 0.12,
-                libSize: minSide * 0.08,
+                answerSize: minSide * 0.17,
+                libSize: minSide * 0.11,
                 spacing: minSide * 0.05,
                 padding: minSide * 0.05
             )
         } else { // 大组件
             return GlassConfig(
-                answerSize: minSide * 0.10,
-                libSize: minSide * 0.06,
+                answerSize: minSide * 0.19,
+                libSize: minSide * 0.12,
                 spacing: minSide * 0.06,
                 padding: minSide * 0.04
             )
