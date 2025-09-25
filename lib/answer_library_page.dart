@@ -322,12 +322,16 @@ class _AnswerLibraryPageState extends State<AnswerLibraryPage> {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        '答案库许愿-email给开发者',
-                        style: GoogleFonts.vt323(
-                          fontSize: 24,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.normal,
+                      Expanded(
+                        child: Text(
+                          '更多答案库',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.vt323(
+                            fontSize: 24,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -356,7 +360,7 @@ class _AnswerLibraryPageState extends State<AnswerLibraryPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '更多精彩答案库正在开发中，敬请期待...',
+                    'email给开发者功能许愿',
                     style: GoogleFonts.vt323(
                       fontSize: 16,
                       color: Colors.grey[500],
