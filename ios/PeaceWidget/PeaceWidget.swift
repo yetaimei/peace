@@ -75,7 +75,7 @@ struct WidgetThemeRenderer {
     }
 }
 
-// Stitch A 主题（深色背景、橙色点缀、点阵纹理）
+// Stitch A 主题（透明背景，跟随系统主题）
 struct StitchAThemeView: View {
     var entry: SimpleEntry
     
@@ -89,15 +89,8 @@ struct StitchAThemeView: View {
             let config = getStitchAConfig(area: area, minSide: minSide)
             
             ZStack {
-                // 深色背景 + iOS14可用的平铺点阵
-                let accentUIColor = UIColor(theme.accent)
-                let tile = dotPatternUIImage(accent: accentUIColor, tileSize: max(minSide * 0.12, 10), dotSize: max(minSide * 0.012, 1))
-                Color(red: 34/255, green: 25/255, blue: 16/255)
-                    .overlay(
-                        Image(uiImage: tile)
-                            .resizable(resizingMode: .tile)
-                            .opacity(0.6)
-                    )
+                // 透明背景，跟随系统主题
+                Color.clear
                 
                 VStack(spacing: 0) {
                     Spacer(minLength: config.spacing)
@@ -105,7 +98,7 @@ struct StitchAThemeView: View {
                     // 中心内容：语录
                     Text(entry.answer)
                         .font(.system(size: config.quoteSize, weight: .regular, design: .rounded))
-                        .foregroundColor(Color.white.opacity(0.85))
+                        .foregroundColor(.primary)
                         .multilineTextAlignment(.center)
                         .lineLimit(nil)
                         .minimumScaleFactor(0.3)
@@ -118,15 +111,13 @@ struct StitchAThemeView: View {
                         Spacer()
                         Text("—— " + entry.libraryName)
                             .font(.system(size: config.authorSize, weight: .bold, design: .rounded))
-                            .foregroundColor(theme.accent)
+                            .foregroundColor(.secondary)
                             .minimumScaleFactor(0.4)
                     }
                 }
                 .padding(config.padding)
             }
         }
-        .background(Color(red: 34/255, green: 25/255, blue: 16/255)) // 移除白色边框，统一深色背景
-        .cornerRadius(0) // 移除圆角，完全填充
     }
     
     private struct StitchAConfig {
@@ -176,8 +167,8 @@ struct GlassThemeView: View {
             let config = getGlassConfig(area: area, minSide: minSide)
             
             ZStack {
-                // 玻璃背景效果
-                Color(red: 34/255, green: 25/255, blue: 16/255).opacity(0.8)
+                // 透明背景，跟随系统主题
+                Color.clear
                 
                 VStack(spacing: 0) {
                     Spacer(minLength: config.spacing)
@@ -185,7 +176,7 @@ struct GlassThemeView: View {
                     // 中心内容：语录
                     Text(entry.answer)
                         .font(.system(size: config.answerSize, weight: .regular, design: .rounded))
-                        .foregroundColor(.white.opacity(0.85))
+                        .foregroundColor(.primary)
                         .multilineTextAlignment(.center)
                         .lineLimit(nil)
                         .minimumScaleFactor(0.3)
@@ -198,15 +189,13 @@ struct GlassThemeView: View {
                         Spacer()
                         Text("—— " + entry.libraryName)
                             .font(.system(size: config.libSize, weight: .medium, design: .rounded))
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.secondary)
                             .minimumScaleFactor(0.4)
                     }
                 }
                 .padding(config.padding)
             }
         }
-        .background(Color(red: 34/255, green: 25/255, blue: 16/255)) // 移除白色边框，统一深色背景
-        .cornerRadius(0) // 移除圆角，完全填充
     }
     
     private struct GlassConfig {
