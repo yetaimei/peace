@@ -4,53 +4,64 @@
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
-
-        {
-            "name": "16-pro-18.5-home",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "deviceId": "A30DA1D3-51A2-4B00-BDEA-759A16FEBCD0"
-        },
-        {
-            "name": "16-pro-18.5-home-release",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "deviceId": "A30DA1D3-51A2-4B00-BDEA-759A16FEBCD0",
-             "flutterMode": "release"
-        },
-        {
-            "name": "16-真机-debug",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "deviceId": "00008140-000055CC0E0B001C",
-            "flutterMode": "debug"
-        },
-        {
-            "name": "16-真机-release",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "deviceId": "00008140-000055CC0E0B001C",
-            "flutterMode": "release"
-        },
-        {
-            "name": "iphone16-home",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "deviceId": "78836151-8023-4F9D-A76B-6A928B4B6FA0"
-        },
-        {
-            "name": "ipad-13-M4",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "deviceId": "9DD62869-6F7D-4DFF-A24B-B0A9EBD9C692",
-            "flutterMode": "debug"
-        }
+    
+      {
+        "name": "iphone17-pro-mini",
+        "request": "launch",
+        "type": "dart",
+        "deviceId": "A56BDF9A-8E5F-4314-BA32-27B29768DAE9" // 设备ID，可通过 flutter devices 获取
+      },
+      {
+        "name": "iphone17-pro-book",
+        "request": "launch",
+        "type": "dart",
+        "deviceId": "24303C36-EE55-486B-8BEF-AF20DBD6386F" // 设备ID，可通过 flutter devices 获取
+      },
+      {
+        "name": "iphone16-pro-pro",
+        "request": "launch",
+        "type": "dart",
+        "deviceId": "044B81E6-0E6E-4E67-9E1E-256B63B8D782" // 设备ID，可通过 flutter devices 获取
+      },
+      {
+        "name": "iphone16-pro-mini",
+        "request": "launch",
+        "type": "dart",
+        "deviceId": "A30DA1D3-51A2-4B00-BDEA-759A16FEBCD0" // 设备ID，可通过 flutter devices 获取
+      },
+      {
+        "name": "16-真机-debug",
+        "request": "launch",
+        "type": "dart",
+        "deviceId": "00008140-000055CC0E0B001C", // 设备ID，可通过 flutter devices 获取
+        "flutterMode": "debug"
+      },
+      {
+        "name": "16-真机-release",
+        "request": "launch",
+        "type": "dart",
+        "deviceId": "00008140-000055CC0E0B001C", // 设备ID，可通过 flutter devices 获取
+        "flutterMode": "release"
+      },
+      {
+        "name": "iphone16-home",
+        "request": "launch",
+        "type": "dart",
+        "deviceId": "78836151-8023-4F9D-A76B-6A928B4B6FA0" // 设备ID，可通过 flutter devices 获取
+      },
+      {
+        "name": "iphone16-plus",
+        "request": "launch",
+        "type": "dart",
+        "deviceId": "4B47AEF4-F2CB-4398-9F47-CF4D2713D34B" // 设备ID，可通过 flutter devices 获取
+      },
+      {
+        "name": "ipad-11-M4",
+        "request": "launch",
+        "type": "dart",
+        "deviceId": "971BDB0D-BDB5-4834-90F1-21D35C1E2C6A",
+        "flutterMode": "debug"
+      }
     ]
-}
+  }
+  
