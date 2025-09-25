@@ -1,0 +1,107 @@
+---
+alwaysApply: true
+description: Peace Widget Extension 架构和开发规范
+globs: ios/PeaceWidget/*.swift
+---
+
+# Peace Widget Extension 架构规范
+
+## 📁 文件结构说明
+
+### 核心文件职责
+- **[PeaceWidgetBundle.swift](mdc:ios/PeaceWidget/PeaceWidgetBundle.swift)** - Widget 扩展入口点，注册所有 Widget 类型
+- **[PeaceWidget.swift](mdc:ios/PeaceWidget/PeaceWidget.swift)** - 传统桌面小组件实现
+- **[PeaceWidgetControl.swift](mdc:ios/PeaceWidget/PeaceWidgetControl.swift)** - 控制中心小组件实现
+- **[PeaceWidgetLiveActivity.swift](mdc:ios/PeaceWidget/PeaceWidgetLiveActivity.swift)** - 实时活动实现
+- **[AppIntent.swift](mdc:ios/PeaceWidget/AppIntent.swift)** - 配置意图和用户交互
+
+## 🎯 功能开发分配
+
+### 桌面小组件功能 → PeaceWidget.swift
+- 信息展示
+- 数据可视化
+- 静态内容：名言、图片、状态信息
+
+### 控制中心功能 → PeaceWidgetControl.swift
+- 快速操作：开关、按钮、滑块
+- 快捷功能：录音、拍照、计算器
+- 状态控制：WiFi、蓝牙、静音切换
+- 应用启动：常用应用快速启动
+
+### 实时活动功能 → PeaceWidgetLiveActivity.swift
+- 动态内容：实时数据更新
+- 进度跟踪：下载、上传、任务进度
+- 状态监控：运动、健康、工作状态
+- 通知增强：重要事件实时显示
+
+### 配置和意图 → AppIntent.swift
+- 用户偏好：主题、语言、显示选项
+- 交互参数：按钮行为、数据源选择
+- 个性化设置：用户自定义选项
+
+## 🏗️ 开发规范
+
+### 1. 文件命名规范
+- 所有 Widget 文件以 `PeaceWidget` 开头
+- 使用驼峰命名法：`PeaceWidgetXXX.swift`
+- 保持与主应用命名风格一致
+
+### 2. 代码组织原则
+- **单一职责**：每个文件只负责一种 Widget 类型
+- **模块化**：避免功能混杂，保持代码清晰
+- **可维护性**：便于独立开发和测试
+
+### 3. Widget 类型选择
+- **信息展示** → 桌面小组件
+- **快速操作** → 控制中心小组件
+- **动态更新** → 实时活动
+
+### 4. 性能优化
+- 合理设置数据更新频率
+- 避免频繁的 UI 重绘
+- 使用适当的缓存策略
+
+### 5. 用户体验
+- 保持不同 Widget 类型的一致性
+- 提供清晰的视觉反馈
+- 支持无障碍功能
+
+## 📋 开发检查清单
+
+### 新增功能时
+1. 确定功能类型（桌面/控制中心/实时活动）
+2. 选择对应的文件进行开发
+3. 更新 [PeaceWidgetBundle.swift](mdc:ios/PeaceWidget/PeaceWidgetBundle.swift) 注册新 Widget
+4. 在 [AppIntent.swift](mdc:ios/PeaceWidget/AppIntent.swift) 中添加配置参数
+5. 添加预览代码便于开发调试
+
+### 代码质量
+- 遵循 Swift 编码规范
+- 添加适当的注释和文档
+- 使用 Preview 进行 UI 调试
+- 确保类型安全和错误处理
+
+## 🔧 技术要点
+
+### Widget 生命周期
+- 使用 `TimelineProvider` 管理数据更新
+- 合理设置 `Timeline` 策略
+- 处理 Widget 的显示和隐藏状态
+
+### 数据共享
+- 使用 `App Groups` 在主应用和 Widget 间共享数据
+- 实现数据同步机制
+- 处理数据更新通知
+
+### 用户交互
+- 使用 `AppIntent` 处理用户操作
+- 实现配置界面
+- 提供个性化选项
+
+## ⚠️ 注意事项
+
+1. **不要**在 Widget 中执行耗时操作
+2. **不要**在 Widget 中存储大量数据
+3. **确保**Widget 代码的轻量级和高效性
+4. **遵循**Apple 的 Widget 设计指南
+5. **测试**不同尺寸和场景下的显示效果

@@ -37,6 +37,7 @@ class _BookOfAnswersAppState extends State<BookOfAnswersApp> {
   void initState() {
     super.initState();
     _loadCurrentFont();
+    _syncDataToWidget();
   }
 
   Future<void> _loadCurrentFont() async {
@@ -46,6 +47,16 @@ class _BookOfAnswersAppState extends State<BookOfAnswersApp> {
         _currentFontId = fontId;
       });
       LoggerService.info('应用启动-加载字体: $fontId', 'APP_LIFECYCLE');
+    }
+  }
+
+  Future<void> _syncDataToWidget() async {
+    try {
+      LoggerService.info('开始同步数据到Widget...', 'APP_LIFECYCLE');
+      await AnswerLibraryService.syncToWidget();
+      LoggerService.info('应用启动-同步数据到Widget成功', 'APP_LIFECYCLE');
+    } catch (e) {
+      LoggerService.error('应用启动-同步数据到Widget失败: $e', 'APP_LIFECYCLE');
     }
   }
 

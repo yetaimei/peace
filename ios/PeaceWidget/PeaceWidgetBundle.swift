@@ -12,7 +12,8 @@ import SwiftUI
 struct peaceWidgetBundle: WidgetBundle {
     var body: some Widget {
         peaceWidget()
-        peaceWidgetControl()
-        peaceWidgetLiveActivity()
+        // 暂时禁用其他Widget类型，专注于基本功能
+        // peaceWidgetControl()
+        // peaceWidgetLiveActivity()
     }
 }

@@ -139,41 +139,93 @@ class FontService {
   })> getCurrentTextStyleFunction() async {
     final fontId = await getCurrentFontId();
     final fontChoice = getFontChoiceById(fontId);
-    return fontChoice?.getTextStyle ?? GoogleFonts.vt323;
+    
+    // 添加字体加载错误处理
+    try {
+      return fontChoice?.getTextStyle ?? _getFallbackTextStyle;
+    } catch (e) {
+      LoggerService.warning('字体加载失败，使用回退字体: $e');
+      return _getFallbackTextStyle;
+    }
+  }
+
+  /// 回退字体样式（使用系统等宽字体）
+  static TextStyle _getFallbackTextStyle({
+    double? fontSize,
+    Color? color,
+    FontWeight? fontWeight,
+    double? letterSpacing,
+    double? height,
+  }) {
+    return TextStyle(
+      fontFamily: 'Courier New', // 系统等宽字体
+      fontSize: fontSize,
+      color: color,
+      fontWeight: fontWeight,
+      letterSpacing: letterSpacing,
+      height: height,
+    );
   }
 
   /// 根据字体ID获取TextTheme
   static TextTheme getTextTheme(BuildContext context, String fontId) {
     final fontChoice = getFontChoiceById(fontId);
     if (fontChoice == null) {
-      return GoogleFonts.vt323TextTheme(Theme.of(context).textTheme);
+      return _getFallbackTextTheme(context);
     }
     
-    // 根据字体类型创建TextTheme
-    switch (fontChoice.id) {
-      case 'vt323':
-        return GoogleFonts.vt323TextTheme(Theme.of(context).textTheme);
-      case 'press_start_2p':
-        return GoogleFonts.pressStart2pTextTheme(Theme.of(context).textTheme);
-      case 'orbitron':
-        return GoogleFonts.orbitronTextTheme(Theme.of(context).textTheme);
-      case 'share_tech_mono':
-        return GoogleFonts.shareTechMonoTextTheme(Theme.of(context).textTheme);
-      case 'courier_prime':
-        return GoogleFonts.courierPrimeTextTheme(Theme.of(context).textTheme);
-      case 'source_code_pro':
-        return GoogleFonts.sourceCodeProTextTheme(Theme.of(context).textTheme);
-      case 'fira_code':
-        return GoogleFonts.firaCodeTextTheme(Theme.of(context).textTheme);
-      case 'inconsolata':
-        return GoogleFonts.inconsolataTextTheme(Theme.of(context).textTheme);
-      case 'major_mono_display':
-        return GoogleFonts.majorMonoDisplayTextTheme(Theme.of(context).textTheme);
-      case 'nova_mono':
-        return GoogleFonts.novaMonoTextTheme(Theme.of(context).textTheme);
-      default:
-        return GoogleFonts.vt323TextTheme(Theme.of(context).textTheme);
+    try {
+      // 根据字体类型创建TextTheme
+      switch (fontChoice.id) {
+        case 'vt323':
+          return GoogleFonts.vt323TextTheme(Theme.of(context).textTheme);
+        case 'press_start_2p':
+          return GoogleFonts.pressStart2pTextTheme(Theme.of(context).textTheme);
+        case 'orbitron':
+          return GoogleFonts.orbitronTextTheme(Theme.of(context).textTheme);
+        case 'share_tech_mono':
+          return GoogleFonts.shareTechMonoTextTheme(Theme.of(context).textTheme);
+        case 'courier_prime':
+          return GoogleFonts.courierPrimeTextTheme(Theme.of(context).textTheme);
+        case 'source_code_pro':
+          return GoogleFonts.sourceCodeProTextTheme(Theme.of(context).textTheme);
+        case 'fira_code':
+          return GoogleFonts.firaCodeTextTheme(Theme.of(context).textTheme);
+        case 'inconsolata':
+          return GoogleFonts.inconsolataTextTheme(Theme.of(context).textTheme);
+        case 'major_mono_display':
+          return GoogleFonts.majorMonoDisplayTextTheme(Theme.of(context).textTheme);
+        case 'nova_mono':
+          return GoogleFonts.novaMonoTextTheme(Theme.of(context).textTheme);
+        default:
+          return _getFallbackTextTheme(context);
+      }
+    } catch (e) {
+      LoggerService.warning('Google Fonts加载失败，使用回退字体: $e');
+      return _getFallbackTextTheme(context);
     }
+  }
+
+  /// 回退TextTheme（使用系统等宽字体）
+  static TextTheme _getFallbackTextTheme(BuildContext context) {
+    final baseTheme = Theme.of(context).textTheme;
+    return TextTheme(
+      displayLarge: baseTheme.displayLarge?.copyWith(fontFamily: 'Courier New'),
+      displayMedium: baseTheme.displayMedium?.copyWith(fontFamily: 'Courier New'),
+      displaySmall: baseTheme.displaySmall?.copyWith(fontFamily: 'Courier New'),
+      headlineLarge: baseTheme.headlineLarge?.copyWith(fontFamily: 'Courier New'),
+      headlineMedium: baseTheme.headlineMedium?.copyWith(fontFamily: 'Courier New'),
+      headlineSmall: baseTheme.headlineSmall?.copyWith(fontFamily: 'Courier New'),
+      titleLarge: baseTheme.titleLarge?.copyWith(fontFamily: 'Courier New'),
+      titleMedium: baseTheme.titleMedium?.copyWith(fontFamily: 'Courier New'),
+      titleSmall: baseTheme.titleSmall?.copyWith(fontFamily: 'Courier New'),
+      bodyLarge: baseTheme.bodyLarge?.copyWith(fontFamily: 'Courier New'),
+      bodyMedium: baseTheme.bodyMedium?.copyWith(fontFamily: 'Courier New'),
+      bodySmall: baseTheme.bodySmall?.copyWith(fontFamily: 'Courier New'),
+      labelLarge: baseTheme.labelLarge?.copyWith(fontFamily: 'Courier New'),
+      labelMedium: baseTheme.labelMedium?.copyWith(fontFamily: 'Courier New'),
+      labelSmall: baseTheme.labelSmall?.copyWith(fontFamily: 'Courier New'),
+    );
   }
 
   /// 检查字体是否可用（用于调试）
@@ -186,6 +238,7 @@ class FontService {
         LoggerService.debug('字体验证成功: ${font.name} (${font.id})');
       } catch (e) {
         LoggerService.warning('字体验证失败: ${font.name} (${font.id}) - $e');
+        LoggerService.info('将使用回退字体: Courier New');
       }
     }
     LoggerService.debug('字体验证完成');

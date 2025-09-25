@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -21,6 +22,10 @@ class AnswerLibraryService {
   static Future<void> setCurrentLibrary(String libraryId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_currentLibraryKey, libraryId);
+    
+    // 同步到Widget
+    await syncToWidget();
+    
     LoggerService.info('切换答案库: $libraryId', 'ANSWER_LIBRARY');
   }
   
@@ -216,5 +221,48 @@ class AnswerLibraryService {
       category: json['category'],
       source: source,
     );
+  }
+  
+  /// 同步数据到Widget
+  static Future<void> syncToWidget() async {
+    try {
+      LoggerService.info('开始获取当前答案库...', 'WIDGET_SYNC');
+      final library = await getCurrentLibrary();
+      if (library != null) {
+        LoggerService.info('获取到答案库: ${library.name} (${library.answers.length}条答案)', 'WIDGET_SYNC');
+        
+        // 创建Method Channel
+        const platform = MethodChannel('com.leilei.peace/widget_sync');
+        
+        // 准备同步数据
+        final syncData = {
+          'id': library.id,
+          'name': library.name,
+          'answers': library.answers,
+          'description': library.description,
+          'author': library.author,
+          'category': library.category,
+        };
+        
+        LoggerService.info('准备调用原生方法同步数据...', 'WIDGET_SYNC');
+        // 调用原生方法同步到App Groups
+        await platform.invokeMethod('syncLibraryData', syncData).timeout(
+          Duration(seconds: 5),
+          onTimeout: () {
+            throw TimeoutException('Method Channel调用超时', Duration(seconds: 5));
+          },
+        );
+        
+        LoggerService.info('数据同步到Widget成功: ${library.name} (${library.answers.length}条答案)', 'WIDGET_SYNC');
+      } else {
+        LoggerService.error('无法获取当前答案库', 'WIDGET_SYNC_ERROR');
+      }
+    } catch (e) {
+      LoggerService.error('同步数据到Widget失败: $e', 'WIDGET_SYNC_ERROR');
+      LoggerService.error('错误类型: ${e.runtimeType}', 'WIDGET_SYNC_ERROR');
+      if (e is PlatformException) {
+        LoggerService.error('平台异常: ${e.code} - ${e.message}', 'WIDGET_SYNC_ERROR');
+      }
+    }
   }
 }
