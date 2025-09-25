@@ -7,6 +7,7 @@ import 'answer_library_page.dart';
 import 'components/pixel_dialog.dart';
 import 'components/about_dialog.dart';
 import 'pages/font_selection_page.dart';
+import 'pages/widget_theme_page.dart';
 import 'services/font_service.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -37,6 +38,8 @@ class _SettingsPageState extends State<SettingsPage> {
     // 字体更改后重新加载当前字体名称
     _loadCurrentFont();
   }
+
+  
 
   Future<void> _openFontSelection() async {
     final result = await Navigator.of(context).push(
@@ -120,6 +123,26 @@ class _SettingsPageState extends State<SettingsPage> {
                               const SizedBox(height: 18),
                               
                               _buildFontSettingItem(),
+                              const SizedBox(height: 18),
+                              _buildSettingItem(
+                                '小组件设置',
+                                () {
+                                  Navigator.of(context).push(
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation, secondaryAnimation) =>
+                                          const WidgetThemePage(),
+                                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                        const begin = Offset(1.0, 0.0);
+                                        const end = Offset.zero;
+                                        const curve = Curves.easeInOut;
+                                        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                                        return SlideTransition(position: animation.drive(tween), child: child);
+                                      },
+                                      transitionDuration: const Duration(milliseconds: 300),
+                                    ),
+                                  );
+                                },
+                              ),
                               const SizedBox(height: 18),
                               
                               _buildSettingItem(
@@ -319,6 +342,8 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
+
+  // 旧的小组件主题内嵌区域已移除，统一改为独立页面
 
   void _shareApp(BuildContext context) async {
     // App Store链接 - 使用简单格式，确保链接有效

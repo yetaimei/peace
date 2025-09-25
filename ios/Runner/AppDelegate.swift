@@ -21,6 +21,8 @@ import WidgetKit
       switch call.method {
       case "syncLibraryData":
         self.handleSyncLibraryData(call: call, result: result)
+      case "setWidgetTheme":
+        self.handleSetWidgetTheme(call: call, result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -63,6 +65,21 @@ import WidgetKit
     }
     
     print("📱 数据同步到Widget成功: \(args["name"] ?? "未知库")")
+    result(nil)
+  }
+
+  // 设置小组件主题并刷新时间线
+  private func handleSetWidgetTheme(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    guard let args = call.arguments as? [String: Any], let theme = args["theme"] as? String else {
+      result(FlutterError(code: "INVALID_ARGUMENTS", message: "参数格式错误", details: nil))
+      return
+    }
+    let userDefaults = UserDefaults(suiteName: "group.com.leilei.peace")
+    userDefaults?.set(theme, forKey: "widget_theme")
+    if #available(iOS 14.0, *) {
+      WidgetCenter.shared.reloadAllTimelines()
+    }
+    print("📱 小组件主题更新为: \(theme)")
     result(nil)
   }
 }

@@ -8,26 +8,123 @@
 import WidgetKit
 import SwiftUI
 
-// MARK: - 主题定义
-enum WidgetTheme: String { case zen, pixel, glass }
+// 公共日期格式化
+@inline(__always)
+func formatDate(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd"
+    return formatter.string(from: date)
+}
 
-struct WidgetThemeConfig { let primary: Color; let secondary: Color }
+// MARK: - 主题定义
+enum WidgetTheme: String { case stitchA, glass }
+
+struct WidgetThemeConfig { let primary: Color; let secondary: Color; let accent: Color }
 
 struct WidgetThemeProvider {
     static func current() -> WidgetTheme {
         let defaults = UserDefaults(suiteName: "group.com.leilei.peace")
-        let raw = defaults?.string(forKey: "widget_theme") ?? "zen"
-        return WidgetTheme(rawValue: raw) ?? .zen
+        let raw = defaults?.string(forKey: "widget_theme") ?? "stitchA"
+        return WidgetTheme(rawValue: raw) ?? .stitchA
     }
     
     static func colors() -> WidgetThemeConfig {
         switch current() {
-        case .zen:
-            return .init(primary: .primary, secondary: .secondary)
-        case .pixel:
-            return .init(primary: .black, secondary: Color.gray.opacity(0.8))
         case .glass:
-            return .init(primary: Color.primary.opacity(0.95), secondary: Color.secondary.opacity(0.8))
+            return .init(primary: Color.primary.opacity(0.95), secondary: Color.secondary.opacity(0.8), accent: .white.opacity(0.7))
+        case .stitchA:
+            let accent = Color(red: 236/255, green: 127/255, blue: 19/255)
+            return .init(primary: .primary, secondary: .secondary, accent: accent)
+        }
+    }
+}
+
+// MARK: - 公共主题视图渲染器
+struct WidgetThemeRenderer {
+    @ViewBuilder
+    static func makeView(entry: SimpleEntry) -> some View {
+        let mode = WidgetThemeProvider.current()
+        switch mode {
+        case .stitchA:
+            StitchAThemeView(entry: entry)
+        case .glass:
+            GlassThemeView(entry: entry)
+        }
+    }
+}
+
+// Stitch A 主题（浅米色、顶部强调色点、中心文案、底部库名）
+struct StitchAThemeView: View {
+    var entry: SimpleEntry
+    var body: some View {
+        let theme = WidgetThemeProvider.colors()
+        GeometryReader { geo in
+            let minSide = min(geo.size.width, geo.size.height)
+            let dateSize = max(minSide * 0.12, 10)
+            let answerSize = max(minSide * 0.18, 12)
+            let libSize = max(minSide * 0.11, 10)
+            ZStack {
+                Color(red: 248/255, green: 247/255, blue: 246/255)
+                VStack(spacing: minSide * 0.04) {
+                    HStack {
+                        Text(formatDate(entry.date))
+                            .font(.system(size: dateSize, weight: .bold, design: .monospaced))
+                            .foregroundColor(theme.accent)
+                        Spacer()
+                        Circle().fill(theme.accent).frame(width: dateSize * 0.45, height: dateSize * 0.45)
+                    }
+                    Text(entry.answer)
+                        .font(.system(size: answerSize, weight: .bold, design: .monospaced))
+                        .foregroundColor(Color.black.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(4)
+                        .minimumScaleFactor(0.7)
+                    Spacer(minLength: 0)
+                    Text(entry.libraryName)
+                        .font(.system(size: libSize, weight: .regular, design: .monospaced))
+                        .foregroundColor(theme.accent)
+                }
+                .padding(minSide * 0.08)
+            }
+        }
+    }
+}
+
+// Glass 主题（轻玻璃风：柔和文字 + 半透明雪白面）
+struct GlassThemeView: View {
+    var entry: SimpleEntry
+    var body: some View {
+        let theme = WidgetThemeProvider.colors()
+        GeometryReader { geo in
+            let minSide = min(geo.size.width, geo.size.height)
+            let dateSize = max(minSide * 0.12, 10)
+            let answerSize = max(minSide * 0.20, 12)
+            let libSize = max(minSide * 0.11, 10)
+            ZStack {
+                Color.clear
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(0.15))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    )
+                    .padding(minSide * 0.02)
+                VStack(spacing: minSide * 0.05) {
+                    Text(formatDate(entry.date))
+                        .font(.system(size: dateSize, weight: .medium, design: .monospaced))
+                        .foregroundColor(theme.secondary)
+                    Text(entry.answer)
+                        .font(.system(size: answerSize, weight: .bold, design: .monospaced))
+                        .foregroundColor(theme.primary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(4)
+                        .minimumScaleFactor(0.7)
+                    Text(entry.libraryName)
+                        .font(.system(size: libSize, weight: .regular, design: .monospaced))
+                        .foregroundColor(theme.secondary)
+                }
+                .padding(minSide * 0.08)
+            }
         }
     }
 }
@@ -112,33 +209,8 @@ struct SimpleEntry: TimelineEntry {
 // MARK: - 小尺寸Widget视图
 struct SmallWidgetView: View {
     var entry: Provider.Entry
-    
     var body: some View {
-        let theme = WidgetThemeProvider.colors()
-        return VStack(spacing: 0) {
-            Text(formatDate(entry.date))
-                .font(.system(size: 11, weight: .medium, design: .monospaced))
-                .foregroundColor(theme.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-            Spacer(minLength: 2)
-            Text(entry.answer)
-                .font(.system(size: 14, weight: .bold, design: .monospaced))
-                .lineLimit(3)
-                .multilineTextAlignment(.center)
-                .foregroundColor(theme.primary)
-                .minimumScaleFactor(0.7)
-                .frame(maxWidth: .infinity)
-            Spacer(minLength: 2)
-            Text(entry.libraryName)
-                .font(.system(size: 10, weight: .regular, design: .monospaced))
-                .foregroundColor(theme.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-        }
-        .padding(4)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.clear)
+        WidgetThemeRenderer.makeView(entry: entry)
     }
     
     private func formatDate(_ date: Date) -> String {
@@ -151,33 +223,8 @@ struct SmallWidgetView: View {
 // MARK: - 中等尺寸Widget视图
 struct MediumWidgetView: View {
     var entry: Provider.Entry
-    
     var body: some View {
-        let theme = WidgetThemeProvider.colors()
-        return VStack(spacing: 0) {
-            Text(formatDate(entry.date))
-                .font(.system(size: 13, weight: .medium, design: .monospaced))
-                .foregroundColor(theme.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-            Spacer(minLength: 4)
-            Text(entry.answer)
-                .font(.system(size: 18, weight: .bold, design: .monospaced))
-                .lineLimit(4)
-                .multilineTextAlignment(.center)
-                .foregroundColor(theme.primary)
-                .minimumScaleFactor(0.8)
-                .frame(maxWidth: .infinity)
-            Spacer(minLength: 4)
-            Text(entry.libraryName)
-                .font(.system(size: 11, weight: .regular, design: .monospaced))
-                .foregroundColor(theme.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-        }
-        .padding(6)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.clear)
+        WidgetThemeRenderer.makeView(entry: entry)
     }
     
     private func formatDate(_ date: Date) -> String {
@@ -190,33 +237,8 @@ struct MediumWidgetView: View {
 // MARK: - 大尺寸Widget视图
 struct LargeWidgetView: View {
     var entry: Provider.Entry
-    
     var body: some View {
-        let theme = WidgetThemeProvider.colors()
-        return VStack(spacing: 0) {
-            Text(formatDate(entry.date))
-                .font(.system(size: 15, weight: .medium, design: .monospaced))
-                .foregroundColor(theme.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-            Spacer(minLength: 8)
-            Text(entry.answer)
-                .font(.system(size: 22, weight: .bold, design: .monospaced))
-                .lineLimit(nil)
-                .multilineTextAlignment(.center)
-                .foregroundColor(theme.primary)
-                .minimumScaleFactor(0.9)
-                .frame(maxWidth: .infinity)
-            Spacer(minLength: 8)
-            Text(entry.libraryName)
-                .font(.system(size: 12, weight: .regular, design: .monospaced))
-                .foregroundColor(theme.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-        }
-        .padding(8)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.clear)
+        WidgetThemeRenderer.makeView(entry: entry)
     }
     
     private func formatDate(_ date: Date) -> String {
