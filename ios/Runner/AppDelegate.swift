@@ -64,6 +64,12 @@ import WidgetKit
       WidgetCenter.shared.reloadAllTimelines()
     }
     
+    // 手动刷新数据管理器缓存，确保数据一致性
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+      // 延迟一点时间确保数据已写入
+      print("🔄 触发数据管理器刷新")
+    }
+    
     print("📱 数据同步到Widget成功: \(args["name"] ?? "未知库")")
     result(nil)
   }

@@ -49,6 +49,12 @@ class PeaceWidgetDataManager {
     // 设置当前答案库
     func setCurrentLibrary(_ libraryId: String) {
         userDefaults?.set(libraryId, forKey: "current_answer_library")
+        
+        // 清除缓存，强制重新加载数据
+        cachedLibraryData = nil
+        lastUpdateTime = nil
+        
+        print("🔄 切换答案库到: \(libraryId)")
         WidgetCenter.shared.reloadAllTimelines()
     }
     
@@ -68,13 +74,22 @@ class PeaceWidgetDataManager {
     
     // 设置答案库数据
     func setLibraryData(_ data: [String: Any]) {
-        userDefaults?.set(data, forKey: "library_data")
-        userDefaults?.set(Date(), forKey: "last_update_time")
-        cachedLibraryData = data
-        lastUpdateTime = Date()
-        
-        // 通知Widget更新
-        WidgetCenter.shared.reloadAllTimelines()
+        // 将数据转换为JSON字符串存储，与读取方式保持一致
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: data, options: [])
+            let jsonString = String(data: jsonData, encoding: .utf8)
+            userDefaults?.set(jsonString, forKey: "library_data")
+            userDefaults?.set(Date(), forKey: "last_update_time")
+            cachedLibraryData = data
+            lastUpdateTime = Date()
+            
+            print("🔄 数据已转换为JSON存储: \(data["name"] ?? "未知库")")
+            
+            // 通知Widget更新
+            WidgetCenter.shared.reloadAllTimelines()
+        } catch {
+            print("❌ JSON转换失败: \(error)")
+        }
     }
     
     // 获取随机答案
@@ -113,7 +128,12 @@ class PeaceWidgetDataManager {
     
     // 手动刷新数据
     func refreshData() {
+        // 清除缓存，强制重新加载
+        cachedLibraryData = nil
+        lastUpdateTime = nil
+        
         loadCachedData()
+        print("🔄 手动刷新数据完成")
         WidgetCenter.shared.reloadAllTimelines()
     }
     
