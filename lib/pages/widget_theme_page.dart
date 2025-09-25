@@ -49,9 +49,9 @@ class _WidgetThemePageState extends State<WidgetThemePage> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        _optionButton('Stitch A', 'stitchA'),
+                        _optionButton('跟随系统主题', 'stitchA'),
                         const SizedBox(height: 12),
-                        _optionButton('Glass', 'glass'),
+                        _buildMoreThemesItem(),
                         const SizedBox(height: 24),
                         Text(
                           '更改后小组件会自动刷新展示效果',
@@ -110,6 +110,107 @@ class _WidgetThemePageState extends State<WidgetThemePage> {
               const SizedBox.shrink(),
           ],
         ),
+      ),
+    );
+  }
+
+  /// 构建"更多主题"项
+  Widget _buildMoreThemesItem() {
+    return Container(
+      padding: const EdgeInsets.all(12.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F5),
+        border: Border.all(
+          color: Colors.grey[400]!,
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[400]!,
+            offset: const Offset(2, 2),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '更多主题',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.vt323(
+                          fontSize: 24,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[100],
+                        border: Border.all(
+                          color: Colors.orange[300]!,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '正在开发中',
+                        style: GoogleFonts.vt323(
+                          fontSize: 12,
+                          color: Colors.orange[700],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'email给开发者功能许愿',
+                  style: GoogleFonts.vt323(
+                    fontSize: 16,
+                    color: Colors.grey[500],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.schedule,
+                      size: 16,
+                      color: Colors.grey[500],
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '敬请期待',
+                      style: GoogleFonts.vt323(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.lock_outline,
+            color: Colors.grey[400],
+            size: 24,
+          ),
+        ],
       ),
     );
   }

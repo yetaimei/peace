@@ -109,7 +109,7 @@ struct StitchAThemeView: View {
                     // 右下角签名
                     HStack {
                         Spacer()
-                        Text("—— " + entry.libraryName)
+                        Text(entry.libraryName)
                             .font(.system(size: config.authorSize, weight: .bold, design: .rounded))
                             .foregroundColor(.secondary)
                             .minimumScaleFactor(0.4)
@@ -144,8 +144,8 @@ struct StitchAThemeView: View {
             )
         } else { // 大组件
             return StitchAConfig(
-                quoteSize: minSide * 0.16,
-                authorSize: minSide * 0.12,
+                quoteSize: minSide * 0.14,
+                authorSize: minSide * 0.10,
                 spacing: minSide * 0.06,
                 padding: minSide * 0.04
             )
@@ -187,7 +187,7 @@ struct GlassThemeView: View {
                     // 右下角签名
                     HStack {
                         Spacer()
-                        Text("—— " + entry.libraryName)
+                        Text(entry.libraryName)
                             .font(.system(size: config.libSize, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
                             .minimumScaleFactor(0.4)
@@ -222,8 +222,8 @@ struct GlassThemeView: View {
             )
         } else { // 大组件
             return GlassConfig(
-                answerSize: minSide * 0.19,
-                libSize: minSide * 0.12,
+                answerSize: minSide * 0.17,
+                libSize: minSide * 0.10,
                 spacing: minSide * 0.06,
                 padding: minSide * 0.04
             )

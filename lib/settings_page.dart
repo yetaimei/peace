@@ -9,6 +9,7 @@ import 'components/about_dialog.dart';
 import 'pages/font_selection_page.dart';
 import 'pages/widget_theme_page.dart';
 import 'services/font_service.dart';
+import 'services/answer_library_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -19,11 +20,13 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   String _currentFontName = '加载中...';
+  String _currentLibraryName = '加载中...';
 
   @override
   void initState() {
     super.initState();
     _loadCurrentFont();
+    _loadCurrentLibraryName();
   }
 
   Future<void> _loadCurrentFont() async {
@@ -70,6 +73,24 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _loadCurrentLibraryName() async {
+    final library = await AnswerLibraryService.getCurrentLibrary();
+    if (!mounted) return;
+    setState(() {
+      _currentLibraryName = library?.name ?? '毛泽东语录';
+    });
+  }
+
+  Future<void> _openAnswerLibrary() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AnswerLibraryPage(),
+      ),
+    );
+    // 返回设置页后刷新当前库名
+    await _loadCurrentLibraryName();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,39 +131,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           constraints: const BoxConstraints(maxWidth: 350),
                           child: Column(
                             children: [
-                              _buildSettingItem(
-                                '答案库',
-                                () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const AnswerLibraryPage(),
-                                    ),
-                                  );
-                                },
-                              ),
+                              _buildAnswerLibrarySettingItem(),
                               const SizedBox(height: 18),
                               
                               _buildFontSettingItem(),
                               const SizedBox(height: 18),
-                              _buildSettingItem(
-                                '小组件设置',
-                                () {
-                                  Navigator.of(context).push(
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation, secondaryAnimation) =>
-                                          const WidgetThemePage(),
-                                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                                        const begin = Offset(1.0, 0.0);
-                                        const end = Offset.zero;
-                                        const curve = Curves.easeInOut;
-                                        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                                        return SlideTransition(position: animation.drive(tween), child: child);
-                                      },
-                                      transitionDuration: const Duration(milliseconds: 300),
-                                    ),
-                                  );
-                                },
-                              ),
+                              _buildWidgetSettingItem(),
                               const SizedBox(height: 18),
                               
                               _buildSettingItem(
@@ -292,6 +286,111 @@ class _SettingsPageState extends State<SettingsPage> {
                   Expanded(
                     child: Text(
                       '($_currentFontName)',
+                      style: GoogleFonts.vt323(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 24,
+              color: Color(0xFF1A1A1A),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnswerLibrarySettingItem() {
+    return GestureDetector(
+      onTap: _openAnswerLibrary,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12.0),
+        decoration: _buildPixelBoxDecoration(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Text(
+                    '答案库',
+                    style: GoogleFonts.vt323(
+                      fontSize: 24,
+                      color: const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      '($_currentLibraryName)',
+                      style: GoogleFonts.vt323(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 24,
+              color: Color(0xFF1A1A1A),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWidgetSettingItem() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const WidgetThemePage(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              const begin = Offset(1.0, 0.0);
+              const end = Offset.zero;
+              const curve = Curves.easeInOut;
+              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              return SlideTransition(position: animation.drive(tween), child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 300),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12.0),
+        decoration: _buildPixelBoxDecoration(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Text(
+                    '桌面小组件',
+                    style: GoogleFonts.vt323(
+                      fontSize: 24,
+                      color: const Color(0xFF1A1A1A),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      '(支持桌面小组件了)',
                       style: GoogleFonts.vt323(
                         fontSize: 16,
                         color: Colors.grey[600],
