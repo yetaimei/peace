@@ -30,7 +30,7 @@ class FontService {
   static const String _defaultFontId = 'vt323';
   
   /// 可选择的像素风格字体列表
-  static const List<FontChoice> availableFonts = [
+  static final List<FontChoice> availableFonts = [
     FontChoice(
       id: 'vt323',
       name: 'VT323',

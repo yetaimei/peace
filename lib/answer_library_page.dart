@@ -323,7 +323,7 @@ class _AnswerLibraryPageState extends State<AnswerLibraryPage> {
                   Row(
                     children: [
                       Text(
-                        '更多答案',
+                        '答案库许愿-email给开发者',
                         style: GoogleFonts.vt323(
                           fontSize: 24,
                           color: Colors.grey[600],
