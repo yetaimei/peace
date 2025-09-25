@@ -241,9 +241,13 @@ struct Provider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
+        print("📸 小组件getSnapshot被调用")
         let dataManager = PeaceWidgetDataManager.shared
         let libraryId = dataManager.getCurrentLibraryId()
         let answer = dataManager.getRandomAnswer(for: libraryId)
+        
+        print("📸 Snapshot - 当前库ID: \(libraryId)")
+        print("📸 Snapshot - 答案: \(answer.text.prefix(20))... 来自: \(answer.libraryName)")
         
         let entry = SimpleEntry(
             date: Date(),
@@ -254,49 +258,75 @@ struct Provider: TimelineProvider {
     }
     
     func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> ()) {
+        print("🔄 小组件getTimeline被调用")
         let currentDate = Date()
         var entries: [SimpleEntry] = []
         let dataManager = PeaceWidgetDataManager.shared
         
-        // 使用智能更新策略
-        let updateInterval = dataManager.getSmartUpdateInterval(for: context.family)
+        // 获取当前数据
+        let answer = getRandomAnswerSync(for: currentDate)
+        let currentEntry = SimpleEntry(
+            date: currentDate,
+            answer: answer.text,
+            libraryName: answer.libraryName
+        )
+        entries.append(currentEntry)
         
-        // 生成未来1小时的条目
-        let endDate = Calendar.current.date(byAdding: .hour, value: 1, to: currentDate)!
-        var entryDate = currentDate
+        print("🔄 小组件创建条目: \(answer.text.prefix(20))... 来自: \(answer.libraryName)")
         
-        while entryDate < endDate {
-            let answer = getRandomAnswerSync(for: entryDate)
-            let entry = SimpleEntry(
-                date: entryDate,
-                answer: answer.text,
-                libraryName: answer.libraryName
+        // 创建未来的更新时间点
+        for i in 1...5 {
+            let futureDate = Calendar.current.date(byAdding: .minute, value: i * 10, to: currentDate)!
+            let futureAnswer = getRandomAnswerSync(for: futureDate)
+            let futureEntry = SimpleEntry(
+                date: futureDate,
+                answer: futureAnswer.text,
+                libraryName: futureAnswer.libraryName
             )
-            entries.append(entry)
-            
-            entryDate = Calendar.current.date(byAdding: .second, value: Int(updateInterval), to: entryDate)!
+            entries.append(futureEntry)
         }
         
-        // 使用智能更新策略
-        let timeline = Timeline(entries: entries, policy: .atEnd)
+        // 设置下次刷新时间为30分钟后
+        let nextRefresh = Calendar.current.date(byAdding: .minute, value: 30, to: currentDate)!
+        print("🔄 小组件下次刷新时间: \(nextRefresh)")
+        
+        // 使用 .after 策略，确保会定期刷新
+        let timeline = Timeline(entries: entries, policy: .after(nextRefresh))
         completion(timeline)
     }
     
     private func getRandomAnswerSync(for date: Date) -> (text: String, libraryName: String) {
         let dataManager = PeaceWidgetDataManager.shared
         
+        // 获取当前选中的答案库ID
+        let currentLibraryId = dataManager.getCurrentLibraryId()
+        print("🔍 小组件获取数据 - 当前库ID: \(currentLibraryId)")
+        
         // 从App Groups获取数据
         guard let libraryData = dataManager.getLibraryData(),
               let answers = libraryData["answers"] as? [String],
               !answers.isEmpty else {
+            print("❌ 小组件无法获取答案数据")
             return ("无法获取答案", "未知库")
+        }
+        
+        let libraryName = libraryData["name"] as? String ?? "未知库"
+        let libraryId = libraryData["id"] as? String ?? "unknown"
+        
+        print("🔍 小组件获取到的数据库: \(libraryName) (ID: \(libraryId))")
+        print("🔍 当前应该使用的库ID: \(currentLibraryId)")
+        
+        // 检查数据是否匹配当前选中的答案库
+        if libraryId != currentLibraryId {
+            print("⚠️ 警告：数据库不匹配！存储的是 \(libraryId)，应该是 \(currentLibraryId)")
         }
         
         // 使用特定时间作为随机种子，确保每次调用结果不同
         let timeInterval = date.timeIntervalSince1970
         let seed = Int(timeInterval * 10) % answers.count
         let selectedAnswer = answers[seed]
-        let libraryName = libraryData["name"] as? String ?? "未知库"
+        
+        print("🔍 小组件选择答案: \(selectedAnswer.prefix(20))...")
         
         return (selectedAnswer, libraryName)
     }

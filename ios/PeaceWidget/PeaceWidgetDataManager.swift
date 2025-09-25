@@ -29,16 +29,23 @@ class PeaceWidgetDataManager {
                 if let jsonData = jsonData {
                     let jsonObject = try JSONSerialization.jsonObject(with: jsonData, options: [])
                     cachedLibraryData = jsonObject as? [String: Any]
-                    print("🔍 从JSON加载数据成功: \(cachedLibraryData?["name"] ?? "未知")")
+                    let libraryName = cachedLibraryData?["name"] ?? "未知"
+                    let libraryId = cachedLibraryData?["id"] ?? "未知"
+                    print("🔍 从JSON加载数据成功: \(libraryName) (ID: \(libraryId))")
                 }
             } catch {
                 print("❌ JSON解析失败: \(error)")
                 cachedLibraryData = nil
             }
         } else {
+            print("🔍 没有找到存储的library_data")
             cachedLibraryData = nil
         }
         lastUpdateTime = userDefaults?.object(forKey: "last_update_time") as? Date
+        
+        // 检查当前选中的答案库ID
+        let currentLibraryId = getCurrentLibraryId()
+        print("🔍 当前选中的答案库ID: \(currentLibraryId)")
     }
     
     // 获取当前选中的答案库ID
@@ -60,15 +67,17 @@ class PeaceWidgetDataManager {
     
     // 获取答案库数据
     func getLibraryData() -> [String: Any]? {
-        // 如果缓存数据存在且未过期，直接返回
-        if let cached = cachedLibraryData,
-           let lastUpdate = lastUpdateTime,
-           Date().timeIntervalSince(lastUpdate) < 300 { // 5分钟内使用缓存
-            return cached
+        // 总是重新加载数据，确保获取最新数据
+        loadCachedData()
+        
+        if let data = cachedLibraryData {
+            let libraryName = data["name"] as? String ?? "未知"
+            let libraryId = data["id"] as? String ?? "未知"
+            print("🔍 getLibraryData返回: \(libraryName) (ID: \(libraryId))")
+        } else {
+            print("🔍 getLibraryData返回: nil")
         }
         
-        // 重新加载数据
-        loadCachedData()
         return cachedLibraryData
     }
     
