@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stitch Design</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ec7f13",
+              "background-light": "#f8f7f6",
+              "background-dark": "#221910",
+            },
+            fontFamily: {
+              "display": ["Space Grotesk"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="flex items-center justify-center min-h-screen">
+<div class="w-full max-w-sm mx-auto bg-background-light dark:bg-background-dark rounded-xl shadow-lg p-6">
+<div class="relative overflow-hidden rounded-lg mb-6" style="aspect-ratio: 1 / 1;">
+<div class="absolute inset-0 bg-center bg-no-repeat bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAmqLyhFXT8Ps3X6NwSSvS8KOjvuvLiPmB9wGIsDjfaZ41A16w3cHJb8Yd9RlkMQHV3TIkzuaOuhNN-hCbROYV9Qo7KWl1nEFcUkKgCZ4SZbD6AJyLffPD-FQiloX31puMgADirnC3urV-8Wfm80pOmomHh4J5j5JJzmzD8Ls-bxJq_NYNhBvg5qss83NasaDTiYrD1miqasA3x8GrkIM0LfPqYgzublKLwToWJc8fnk2KcEJDm-qVo85kp7J_RqiH0XB7zs4P-yJQ");'></div>
+<div class="absolute inset-0 bg-black/30"></div>
+<div class="relative z-10 flex flex-col items-center justify-center h-full p-6 text-center text-white">
+<h1 class="text-3xl font-bold leading-tight tracking-tight">2024.07.24</h1>
+<p class="mt-4 text-lg font-normal leading-relaxed">The best way to predict the future is to create it.</p>
+<p class="mt-4 text-sm font-normal text-white/70">Peter Drucker</p>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>
