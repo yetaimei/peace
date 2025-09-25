@@ -1,50 +1,72 @@
-//
-//  peaceWidget.swift
-//  peaceWidget
-//
-//  Created by 雷雷 on 2025/9/25.
-//
-
 import WidgetKit
 import SwiftUI
+import UIKit
 
-// 公共日期格式化
-@inline(__always)
+// 全局日期格式化函数
 func formatDate(_ date: Date) -> String {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd"
     return formatter.string(from: date)
 }
 
-// MARK: - 主题定义
-enum WidgetTheme: String { case stitchA, glass }
+func dayString(from date: Date) -> String {
+    let f = DateFormatter()
+    f.dateFormat = "d"
+    return f.string(from: date)
+}
 
-struct WidgetThemeConfig { let primary: Color; let secondary: Color; let accent: Color }
+func monthString(from date: Date) -> String {
+    let f = DateFormatter()
+    f.dateFormat = "MMM"
+    return f.string(from: date)
+}
 
-struct WidgetThemeProvider {
-    static func current() -> WidgetTheme {
-        let defaults = UserDefaults(suiteName: "group.com.leilei.peace")
-        let raw = defaults?.string(forKey: "widget_theme") ?? "stitchA"
-        return WidgetTheme(rawValue: raw) ?? .stitchA
-    }
-    
-    static func colors() -> WidgetThemeConfig {
-        switch current() {
-        case .glass:
-            return .init(primary: Color.primary.opacity(0.95), secondary: Color.secondary.opacity(0.8), accent: .white.opacity(0.7))
-        case .stitchA:
-            let accent = Color(red: 236/255, green: 127/255, blue: 19/255)
-            return .init(primary: .primary, secondary: .secondary, accent: accent)
-        }
+// 生成可平铺的点阵背景图片（iOS 14 兼容）
+func dotPatternUIImage(accent: UIColor, tileSize: CGFloat = 10, dotSize: CGFloat = 1, alpha: CGFloat = 0.2) -> UIImage {
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: tileSize, height: tileSize))
+    return renderer.image { ctx in
+        let rect = CGRect(x: (tileSize - dotSize) / 2, y: (tileSize - dotSize) / 2, width: dotSize, height: dotSize)
+        let path = UIBezierPath(roundedRect: rect, cornerRadius: dotSize / 2)
+        accent.withAlphaComponent(alpha).setFill()
+        path.fill()
     }
 }
 
-// MARK: - 公共主题视图渲染器
+// MARK: - Widget主题配置
+enum WidgetTheme: String, CaseIterable {
+    case stitchA = "stitchA"
+    case glass = "glass"
+}
+
+struct WidgetThemeConfig {
+    let accent: Color
+    let background: Color
+    let text: Color
+}
+
+struct WidgetThemeProvider {
+    static func colors() -> WidgetThemeConfig {
+        return WidgetThemeConfig(
+            accent: Color(red: 236/255, green: 127/255, blue: 19/255), // #ec7f13
+            background: Color(red: 34/255, green: 25/255, blue: 16/255),
+            text: Color.white
+        )
+    }
+    
+    static func current() -> WidgetTheme {
+        let userDefaults = UserDefaults(suiteName: "group.com.leilei.peace")
+        let themeString = userDefaults?.string(forKey: "widget_theme") ?? "stitchA"
+        return WidgetTheme(rawValue: themeString) ?? .stitchA
+    }
+}
+
+// MARK: - Widget主题渲染器
 struct WidgetThemeRenderer {
     @ViewBuilder
     static func makeView(entry: SimpleEntry) -> some View {
-        let mode = WidgetThemeProvider.current()
-        switch mode {
+        let theme = WidgetThemeProvider.current()
+        
+        switch theme {
         case .stitchA:
             StitchAThemeView(entry: entry)
         case .glass:
@@ -53,78 +75,169 @@ struct WidgetThemeRenderer {
     }
 }
 
-// Stitch A 主题（浅米色、顶部强调色点、中心文案、底部库名）
+// Stitch A 主题（深色背景、橙色点缀、点阵纹理）
 struct StitchAThemeView: View {
     var entry: SimpleEntry
+    
     var body: some View {
         let theme = WidgetThemeProvider.colors()
         GeometryReader { geo in
             let minSide = min(geo.size.width, geo.size.height)
-            let dateSize = max(minSide * 0.12, 10)
-            let answerSize = max(minSide * 0.18, 12)
-            let libSize = max(minSide * 0.11, 10)
+            let area = geo.size.width * geo.size.height
+            
+            // 根据组件尺寸动态调整字体大小和间距
+            let config = getStitchAConfig(area: area, minSide: minSide)
+            
             ZStack {
-                Color(red: 248/255, green: 247/255, blue: 246/255)
-                VStack(spacing: minSide * 0.04) {
-                    HStack {
-                        Text(formatDate(entry.date))
-                            .font(.system(size: dateSize, weight: .bold, design: .monospaced))
-                            .foregroundColor(theme.accent)
-                        Spacer()
-                        Circle().fill(theme.accent).frame(width: dateSize * 0.45, height: dateSize * 0.45)
-                    }
+                // 深色背景 + iOS14可用的平铺点阵
+                let accentUIColor = UIColor(theme.accent)
+                let tile = dotPatternUIImage(accent: accentUIColor, tileSize: max(minSide * 0.12, 10), dotSize: max(minSide * 0.012, 1))
+                Color(red: 34/255, green: 25/255, blue: 16/255)
+                    .overlay(
+                        Image(uiImage: tile)
+                            .resizable(resizingMode: .tile)
+                            .opacity(0.6)
+                    )
+                
+                VStack(spacing: 0) {
+                    Spacer(minLength: config.spacing)
+                    
+                    // 中心内容：语录
                     Text(entry.answer)
-                        .font(.system(size: answerSize, weight: .bold, design: .monospaced))
-                        .foregroundColor(Color.black.opacity(0.9))
+                        .font(.system(size: config.quoteSize, weight: .regular, design: .rounded))
+                        .foregroundColor(Color.white.opacity(0.85))
                         .multilineTextAlignment(.center)
-                        .lineLimit(4)
-                        .minimumScaleFactor(0.7)
-                    Spacer(minLength: 0)
-                    Text(entry.libraryName)
-                        .font(.system(size: libSize, weight: .regular, design: .monospaced))
-                        .foregroundColor(theme.accent)
+                        .lineLimit(nil)
+                        .minimumScaleFactor(0.3)
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    Spacer(minLength: config.spacing)
+                    
+                    // 右下角签名
+                    HStack {
+                        Spacer()
+                        Text("—— " + entry.libraryName)
+                            .font(.system(size: config.authorSize, weight: .bold, design: .rounded))
+                            .foregroundColor(theme.accent)
+                            .minimumScaleFactor(0.4)
+                    }
                 }
-                .padding(minSide * 0.08)
+                .padding(config.padding)
             }
+        }
+        .background(Color(red: 34/255, green: 25/255, blue: 16/255)) // 移除白色边框，统一深色背景
+        .cornerRadius(0) // 移除圆角，完全填充
+    }
+    
+    private struct StitchAConfig {
+        let quoteSize: CGFloat
+        let authorSize: CGFloat
+        let spacing: CGFloat
+        let padding: CGFloat
+    }
+    
+    private func getStitchAConfig(area: CGFloat, minSide: CGFloat) -> StitchAConfig {
+        if area < 6000 { // 小组件
+            return StitchAConfig(
+                quoteSize: minSide * 0.12,
+                authorSize: minSide * 0.09,
+                spacing: minSide * 0.04,
+                padding: minSide * 0.06
+            )
+        } else if area < 20000 { // 中等组件
+            return StitchAConfig(
+                quoteSize: minSide * 0.10,
+                authorSize: minSide * 0.08,
+                spacing: minSide * 0.05,
+                padding: minSide * 0.05
+            )
+        } else { // 大组件
+            return StitchAConfig(
+                quoteSize: minSide * 0.08,
+                authorSize: minSide * 0.06,
+                spacing: minSide * 0.06,
+                padding: minSide * 0.04
+            )
         }
     }
 }
 
-// Glass 主题（轻玻璃风：柔和文字 + 半透明雪白面）
+// Glass 主题（轻玻璃风：柔和文字 + 半透明深色面）
 struct GlassThemeView: View {
     var entry: SimpleEntry
+    
     var body: some View {
         let theme = WidgetThemeProvider.colors()
         GeometryReader { geo in
             let minSide = min(geo.size.width, geo.size.height)
-            let dateSize = max(minSide * 0.12, 10)
-            let answerSize = max(minSide * 0.20, 12)
-            let libSize = max(minSide * 0.11, 10)
+            let area = geo.size.width * geo.size.height
+            
+            // 根据组件尺寸动态调整字体大小和间距
+            let config = getGlassConfig(area: area, minSide: minSide)
+            
             ZStack {
-                Color.clear
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.15))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                    )
-                    .padding(minSide * 0.02)
-                VStack(spacing: minSide * 0.05) {
-                    Text(formatDate(entry.date))
-                        .font(.system(size: dateSize, weight: .medium, design: .monospaced))
-                        .foregroundColor(theme.secondary)
+                // 玻璃背景效果
+                Color(red: 34/255, green: 25/255, blue: 16/255).opacity(0.8)
+                
+                VStack(spacing: 0) {
+                    Spacer(minLength: config.spacing)
+                    
+                    // 中心内容：语录
                     Text(entry.answer)
-                        .font(.system(size: answerSize, weight: .bold, design: .monospaced))
-                        .foregroundColor(theme.primary)
+                        .font(.system(size: config.answerSize, weight: .regular, design: .rounded))
+                        .foregroundColor(.white.opacity(0.85))
                         .multilineTextAlignment(.center)
-                        .lineLimit(4)
-                        .minimumScaleFactor(0.7)
-                    Text(entry.libraryName)
-                        .font(.system(size: libSize, weight: .regular, design: .monospaced))
-                        .foregroundColor(theme.secondary)
+                        .lineLimit(nil)
+                        .minimumScaleFactor(0.3)
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    Spacer(minLength: config.spacing)
+                    
+                    // 右下角签名
+                    HStack {
+                        Spacer()
+                        Text("—— " + entry.libraryName)
+                            .font(.system(size: config.libSize, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.7))
+                            .minimumScaleFactor(0.4)
+                    }
                 }
-                .padding(minSide * 0.08)
+                .padding(config.padding)
             }
+        }
+        .background(Color(red: 34/255, green: 25/255, blue: 16/255)) // 移除白色边框，统一深色背景
+        .cornerRadius(0) // 移除圆角，完全填充
+    }
+    
+    private struct GlassConfig {
+        let answerSize: CGFloat
+        let libSize: CGFloat
+        let spacing: CGFloat
+        let padding: CGFloat
+    }
+    
+    private func getGlassConfig(area: CGFloat, minSide: CGFloat) -> GlassConfig {
+        if area < 6000 { // 小组件
+            return GlassConfig(
+                answerSize: minSide * 0.15,
+                libSize: minSide * 0.09,
+                spacing: minSide * 0.04,
+                padding: minSide * 0.06
+            )
+        } else if area < 20000 { // 中等组件
+            return GlassConfig(
+                answerSize: minSide * 0.12,
+                libSize: minSide * 0.08,
+                spacing: minSide * 0.05,
+                padding: minSide * 0.05
+            )
+        } else { // 大组件
+            return GlassConfig(
+                answerSize: minSide * 0.10,
+                libSize: minSide * 0.06,
+                spacing: minSide * 0.06,
+                padding: minSide * 0.04
+            )
         }
     }
 }
@@ -212,12 +325,6 @@ struct SmallWidgetView: View {
     var body: some View {
         WidgetThemeRenderer.makeView(entry: entry)
     }
-    
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
-    }
 }
 
 // MARK: - 中等尺寸Widget视图
@@ -225,12 +332,6 @@ struct MediumWidgetView: View {
     var entry: Provider.Entry
     var body: some View {
         WidgetThemeRenderer.makeView(entry: entry)
-    }
-    
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
     }
 }
 
@@ -240,22 +341,14 @@ struct LargeWidgetView: View {
     var body: some View {
         WidgetThemeRenderer.makeView(entry: entry)
     }
-    
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
-    }
 }
 
-// MARK: - 主Widget视图
-struct peaceWidgetEntryView: View {
+struct peaceWidgetEntryView : View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
-    
+
     var body: some View {
-        Group {
-            switch family {
+        switch family {
             case .systemSmall:
                 SmallWidgetView(entry: entry)
             case .systemMedium:
@@ -264,13 +357,7 @@ struct peaceWidgetEntryView: View {
                 LargeWidgetView(entry: entry)
             default:
                 MediumWidgetView(entry: entry)
-            }
         }
-        .onAppear {
-            // 记录显示时间
-            print("Widget显示: \(entry.answer)")
-        }
-        .animation(.easeInOut(duration: 0.3), value: entry.answer)
     }
 }
 
@@ -280,17 +367,19 @@ struct peaceWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             peaceWidgetEntryView(entry: entry)
+                .background(Color.clear)
         }
-        .configurationDisplayName("Peace小组件")
-        .description("显示每日精选答案")
+        .configurationDisplayName("答案之书")
+        .description("每日精选答案，带给你内心的平静。")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
-// MARK: - 预览
+#if DEBUG
 struct peaceWidget_Previews: PreviewProvider {
     static var previews: some View {
-        peaceWidgetEntryView(entry: SimpleEntry(date: Date(), answer: "为人民服务", libraryName: "毛泽东语录"))
+        peaceWidgetEntryView(entry: SimpleEntry(date: Date(), answer: "随遇而安，保持内心平静", libraryName: "禅意答案"))
             .previewContext(WidgetPreviewContext(family: .systemSmall))
     }
 }
+#endif
