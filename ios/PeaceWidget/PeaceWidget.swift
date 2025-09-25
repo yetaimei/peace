@@ -97,7 +97,7 @@ struct StitchAThemeView: View {
                     
                     // 中心内容：语录
                     Text(entry.answer)
-                        .font(.system(size: config.quoteSize, weight: .regular, design: .rounded))
+                        .font(.system(size: config.quoteSize, weight: .regular))
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.center)
                         .lineLimit(nil)
@@ -110,7 +110,7 @@ struct StitchAThemeView: View {
                     HStack {
                         Spacer()
                         Text(entry.libraryName)
-                            .font(.system(size: config.authorSize, weight: .bold, design: .rounded))
+                            .font(.system(size: config.authorSize, weight: .bold))
                             .foregroundColor(.secondary)
                             .minimumScaleFactor(0.4)
                     }
@@ -175,7 +175,7 @@ struct GlassThemeView: View {
                     
                     // 中心内容：语录
                     Text(entry.answer)
-                        .font(.system(size: config.answerSize, weight: .regular, design: .rounded))
+                        .font(.system(size: config.answerSize, weight: .regular))
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.center)
                         .lineLimit(nil)
@@ -188,7 +188,7 @@ struct GlassThemeView: View {
                     HStack {
                         Spacer()
                         Text(entry.libraryName)
-                            .font(.system(size: config.libSize, weight: .medium, design: .rounded))
+                            .font(.system(size: config.libSize, weight: .medium))
                             .foregroundColor(.secondary)
                             .minimumScaleFactor(0.4)
                     }
