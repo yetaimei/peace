@@ -8,6 +8,30 @@
 import WidgetKit
 import SwiftUI
 
+// MARK: - 主题定义
+enum WidgetTheme: String { case zen, pixel, glass }
+
+struct WidgetThemeConfig { let primary: Color; let secondary: Color }
+
+struct WidgetThemeProvider {
+    static func current() -> WidgetTheme {
+        let defaults = UserDefaults(suiteName: "group.com.leilei.peace")
+        let raw = defaults?.string(forKey: "widget_theme") ?? "zen"
+        return WidgetTheme(rawValue: raw) ?? .zen
+    }
+    
+    static func colors() -> WidgetThemeConfig {
+        switch current() {
+        case .zen:
+            return .init(primary: .primary, secondary: .secondary)
+        case .pixel:
+            return .init(primary: .black, secondary: Color.gray.opacity(0.8))
+        case .glass:
+            return .init(primary: Color.primary.opacity(0.95), secondary: Color.secondary.opacity(0.8))
+        }
+    }
+}
+
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(
@@ -90,22 +114,32 @@ struct SmallWidgetView: View {
     var entry: Provider.Entry
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        let theme = WidgetThemeProvider.colors()
+        return VStack(spacing: 0) {
             Text(formatDate(entry.date))
-                .font(.caption2)
-                .foregroundColor(.secondary)
-            
+                .font(.system(size: 11, weight: .medium, design: .monospaced))
+                .foregroundColor(theme.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+            Spacer(minLength: 2)
             Text(entry.answer)
-                .font(.caption)
+                .font(.system(size: 14, weight: .bold, design: .monospaced))
                 .lineLimit(3)
-                .multilineTextAlignment(.leading)
-                .foregroundColor(.primary)
+                .multilineTextAlignment(.center)
+                .foregroundColor(theme.primary)
+                .minimumScaleFactor(0.7)
+                .frame(maxWidth: .infinity)
+            Spacer(minLength: 2)
+            Text(entry.libraryName)
+                .font(.system(size: 10, weight: .regular, design: .monospaced))
+                .foregroundColor(theme.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
         }
-        .padding(8)
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .padding(4)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
     }
-    
     
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
@@ -119,26 +153,32 @@ struct MediumWidgetView: View {
     var entry: Provider.Entry
     
     var body: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(formatDate(entry.date))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                Text(entry.answer)
-                    .font(.body)
-                    .lineLimit(4)
-                    .multilineTextAlignment(.leading)
-                    .foregroundColor(.primary)
-            }
-            
-            Spacer()
+        let theme = WidgetThemeProvider.colors()
+        return VStack(spacing: 0) {
+            Text(formatDate(entry.date))
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
+                .foregroundColor(theme.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+            Spacer(minLength: 4)
+            Text(entry.answer)
+                .font(.system(size: 18, weight: .bold, design: .monospaced))
+                .lineLimit(4)
+                .multilineTextAlignment(.center)
+                .foregroundColor(theme.primary)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: .infinity)
+            Spacer(minLength: 4)
+            Text(entry.libraryName)
+                .font(.system(size: 11, weight: .regular, design: .monospaced))
+                .foregroundColor(theme.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
         }
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .padding(6)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
     }
-    
     
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
@@ -152,30 +192,32 @@ struct LargeWidgetView: View {
     var entry: Provider.Entry
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(formatDate(entry.date))
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                Spacer()
-                Text(entry.libraryName)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
+        let theme = WidgetThemeProvider.colors()
+        return VStack(spacing: 0) {
+            Text(formatDate(entry.date))
+                .font(.system(size: 15, weight: .medium, design: .monospaced))
+                .foregroundColor(theme.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+            Spacer(minLength: 8)
             Text(entry.answer)
-                .font(.body)
+                .font(.system(size: 22, weight: .bold, design: .monospaced))
                 .lineLimit(nil)
-                .multilineTextAlignment(.leading)
-                .foregroundColor(.primary)
-            
-            Spacer()
+                .multilineTextAlignment(.center)
+                .foregroundColor(theme.primary)
+                .minimumScaleFactor(0.9)
+                .frame(maxWidth: .infinity)
+            Spacer(minLength: 8)
+            Text(entry.libraryName)
+                .font(.system(size: 12, weight: .regular, design: .monospaced))
+                .foregroundColor(theme.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
         }
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .padding(8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
     }
-    
     
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
@@ -216,8 +258,6 @@ struct peaceWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             peaceWidgetEntryView(entry: entry)
-                .padding()
-                .background(Color.clear)
         }
         .configurationDisplayName("Peace小组件")
         .description("显示每日精选答案")
