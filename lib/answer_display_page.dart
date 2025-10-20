@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'dart:io';
 import 'dart:math';
-import 'package:path_provider/path_provider.dart';
 import 'services/logger_service.dart';
+import 'services/answer_library_service.dart';
 import 'components/pixel_dialog.dart';
 import 'components/theme_layouts.dart';
 
@@ -96,6 +95,16 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
   
   // 当前主题索引
   int _currentThemeIndex = 0;
+  
+  // 当前显示的答案（可动态刷新）
+  String _currentAnswer = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // 初始化当前答案为传入值
+    _currentAnswer = widget.answer;
+  }
   
   // 主题数组
   final List<PixelTheme> _themes = [
@@ -430,6 +439,28 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
     }
   }
 
+  /// 再试一次：重新获取一个随机答案
+  /// 从当前答案库中获取随机答案，并更新页面展示
+  Future<void> _retryGetNewAnswer() async {
+    try {
+      HapticFeedback.mediumImpact();
+      LoggerService.userAction('用户点击再试一次');
+      final newAnswer = await AnswerLibraryService.getRandomAnswer();
+      if (!mounted) return;
+      setState(() {
+        _currentAnswer = newAnswer;
+      });
+    } catch (e) {
+      LoggerService.error('再试一次获取答案失败', null, e);
+      if (!mounted) return;
+      PixelDialogExtended.show(
+        context,
+        '获取新答案失败，请重试',
+        type: PixelDialogType.error,
+      );
+    }
+  }
+
   // 保存壁纸功能
   void _saveWallpaper() async {
     if (!mounted) return;
@@ -464,54 +495,6 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
     }
   }
 
-  // 分享给好友功能
-  void _shareToFriend() async {
-    if (!mounted) return;
-    
-    try {
-      LoggerService.debug('开始分享功能');
-
-      // 截图
-      final imageBytes = await _captureWallpaper();
-      if (!mounted) return;
-      
-      if (imageBytes == null) {
-        LoggerService.error('分享时截图失败');
-        PixelDialogExtended.show(
-          context,
-          '生成图片失败，请重试',
-          type: PixelDialogType.error,
-        );
-        return;
-      }
-
-      // 保存临时文件
-      LoggerService.debug('保存临时分享文件');
-      final tempDir = await getTemporaryDirectory();
-      final file = await File('${tempDir.path}/answer_${_themes[_currentThemeIndex].name}.png').create();
-      await file.writeAsBytes(imageBytes);
-      LoggerService.debug('临时文件已保存: ${file.path}');
-
-      if (!mounted) return;
-
-      // 分享文件
-      LoggerService.debug('调用系统分享');
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: '${widget.question.isNotEmpty ? "问题: ${widget.question}\n" : ""}答案: ${widget.answer}\n\n主题: ${_themes[_currentThemeIndex].name}\n来自《答案之书》',
-        subject: '我的答案之书 - ${_themes[_currentThemeIndex].name}主题',
-      );
-      LoggerService.debug('分享完成');
-    } catch (e) {
-      LoggerService.error('分享失败', null, e);
-      if (!mounted) return;
-      PixelDialogExtended.show(
-        context,
-        '分享失败，请重试',
-        type: PixelDialogType.error,
-      );
-    }
-  }
 
   @override
   void dispose() {
@@ -608,7 +591,7 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
             ),
             const SizedBox(height: 20),
             Text(
-              widget.answer,
+              _currentAnswer,
               style: GoogleFonts.vt323(
                 fontSize: 36,
                 color: theme.textColor,
@@ -624,77 +607,77 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
 
   // 2. Matrix布局
   Widget _buildMatrixLayout(PixelTheme theme) {
-    return ThemeLayouts.buildMatrixLayout(theme, widget.answer);
+    return ThemeLayouts.buildMatrixLayout(theme, _currentAnswer);
   }
 
   // 3. 赛博朋克布局
   Widget _buildCyberpunkLayout(PixelTheme theme) {
-    return ThemeLayouts.buildCyberpunkLayout(theme, widget.answer);
+    return ThemeLayouts.buildCyberpunkLayout(theme, _currentAnswer);
   }
 
   // 4. 复古布局
   Widget _buildRetroLayout(PixelTheme theme) {
-    return ThemeLayouts.buildRetroLayout(theme, widget.answer);
+    return ThemeLayouts.buildRetroLayout(theme, _currentAnswer);
   }
 
   // 5. 海洋布局
   Widget _buildOceanLayout(PixelTheme theme) {
-    return ThemeLayouts.buildOceanLayout(theme, widget.answer);
+    return ThemeLayouts.buildOceanLayout(theme, _currentAnswer);
   }
 
   // 6. 可爱布局
   Widget _buildKawaiiLayout(PixelTheme theme) {
-    return ThemeLayouts.buildKawaiiLayout(theme, widget.answer);
+    return ThemeLayouts.buildKawaiiLayout(theme, _currentAnswer);
   }
 
   // 7. 自然布局
   Widget _buildNatureLayout(PixelTheme theme) {
-    return ThemeLayouts.buildNatureLayout(theme, widget.answer);
+    return ThemeLayouts.buildNatureLayout(theme, _currentAnswer);
   }
 
   // 8. 奢华布局
   Widget _buildLuxuryLayout(PixelTheme theme) {
-    return ThemeLayouts.buildLuxuryLayout(theme, widget.answer);
+    return ThemeLayouts.buildLuxuryLayout(theme, _currentAnswer);
   }
 
   // 9. 终端布局
   Widget _buildTerminalLayout(PixelTheme theme) {
-    return ThemeLayouts.buildTerminalLayout(theme, widget.answer);
+    return ThemeLayouts.buildTerminalLayout(theme, _currentAnswer);
   }
 
   // 10. Game Boy布局
   Widget _buildGameBoyLayout(PixelTheme theme) {
-    return ThemeLayouts.buildGameBoyLayout(theme, widget.answer);
+    return ThemeLayouts.buildGameBoyLayout(theme, _currentAnswer);
   }
 
   // 11. Kindle布局
   Widget _buildKindleLayout(PixelTheme theme) {
-    return ThemeLayouts.buildKindleLayout(theme, widget.answer);
+    return ThemeLayouts.buildKindleLayout(theme, _currentAnswer);
   }
 
   // 12. VHS布局
   Widget _buildVhsLayout(PixelTheme theme) {
-    return ThemeLayouts.buildVhsLayout(theme, widget.answer);
+    return ThemeLayouts.buildVhsLayout(theme, _currentAnswer);
   }
 
   // 13. 计算器布局
   Widget _buildCalculatorLayout(PixelTheme theme) {
-    return ThemeLayouts.buildCalculatorLayout(theme, widget.answer);
+    return ThemeLayouts.buildCalculatorLayout(theme, _currentAnswer);
   }
 
   // 14. 传呼机布局
   Widget _buildPagerLayout(PixelTheme theme) {
-    return ThemeLayouts.buildPagerLayout(theme, widget.answer);
+    return ThemeLayouts.buildPagerLayout(theme, _currentAnswer);
   }
 
   // 15. 收音机布局
   Widget _buildRadioTunerLayout(PixelTheme theme) {
-    return ThemeLayouts.buildRadioTunerLayout(theme, widget.answer);
+    return ThemeLayouts.buildRadioTunerLayout(theme, _currentAnswer);
   }
 
   // 16. 辉光管布局
   Widget _buildNixieLayout(PixelTheme theme) {
-    return ThemeLayouts.buildNixieLayout(theme, widget.answer);
+    return ThemeLayouts.buildNixieLayout(theme, _currentAnswer);
   }
 
   @override
@@ -803,7 +786,7 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
             Positioned(
               left: 20.0,
               right: 20.0,
-              bottom: 120.0,
+              bottom: 200.0,
               child: Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -825,7 +808,7 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
                 ),
               ),
             ),
-          
+
           // 底部按钮组（可以被隐藏）
           if (_showButtons)
             Positioned(
@@ -836,13 +819,56 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
                 margin: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
                   children: [
+                    // 再试一次按钮
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: _retryGetNewAnswer,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 14.0),
+                          margin: const EdgeInsets.only(right: 8.0),
+                          decoration: BoxDecoration(
+                            color: currentTheme.primaryColor,
+                            border: Border.all(
+                              color: currentTheme.borderColor,
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: currentTheme.shadowColor,
+                                offset: const Offset(3, 3),
+                                blurRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.refresh,
+                                size: 20,
+                                color: currentTheme.textColor,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '再试一次',
+                                style: GoogleFonts.vt323(
+                                  fontSize: 18,
+                                  color: currentTheme.textColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    
                     // 保存壁纸按钮
                     Expanded(
                       child: GestureDetector(
                         onTap: _saveWallpaper,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 14.0),
-                          margin: const EdgeInsets.only(right: 8.0),
+                          margin: const EdgeInsets.only(left: 8.0),
                           decoration: BoxDecoration(
                             color: currentTheme.primaryColor,
                             border: Border.all(
@@ -868,49 +894,6 @@ class _AnswerDisplayPageState extends State<AnswerDisplayPage> {
                               const SizedBox(width: 8),
                               Text(
                                 '保存壁纸',
-                                style: GoogleFonts.vt323(
-                                  fontSize: 18,
-                                  color: currentTheme.textColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    
-                    // 分享给好友按钮
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: _shareToFriend,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 14.0),
-                          margin: const EdgeInsets.only(left: 8.0),
-                          decoration: BoxDecoration(
-                            color: currentTheme.primaryColor,
-                            border: Border.all(
-                              color: currentTheme.borderColor,
-                              width: 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: currentTheme.shadowColor,
-                                offset: const Offset(3, 3),
-                                blurRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.share,
-                                size: 20,
-                                color: currentTheme.textColor,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '分享好友',
                                 style: GoogleFonts.vt323(
                                   fontSize: 18,
                                   color: currentTheme.textColor,

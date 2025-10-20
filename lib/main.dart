@@ -239,14 +239,14 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
   }
 
   void _getAnswer() async {
-    if (_questionController.text.isNotEmpty && !_isSearchingAnswer) {
+    if (!_isSearchingAnswer) {
       final question = _questionController.text;
       
       // 使用答案库服务获取答案
       final answer = await AnswerLibraryService.getRandomAnswer();
       
       LoggerService.userAction('用户获取答案', {
-        'question': question.length > 20 ? '${question.substring(0, 20)}...' : question,
+        'question': question.isNotEmpty ? (question.length > 20 ? '${question.substring(0, 20)}...' : question) : '无问题',
         'questionLength': question.length,
       });
       
@@ -312,9 +312,6 @@ class _BookOfAnswersPageState extends State<BookOfAnswersPage>
       );
       }
     } else {
-      if (_questionController.text.isEmpty) {
-        LoggerService.warning('用户尝试获取答案但问题为空');
-      }
       if (_isSearchingAnswer) {
         LoggerService.warning('用户尝试重复获取答案');
       }
